@@ -16,69 +16,6 @@ import asiaLogo from '@assets/generated_images/asian_medical_logo.png';
 import drAhmadPhoto from '@assets/generated_images/professional_doctor_headshot.png';
 import dnaBackground from '@assets/generated_images/dna_helix_background.png';
 
-// ADHD Features configuration (Top 10 features based on clinical research)
-const adhdFeatures = [
-  {
-    key: 'attention_sustaining',
-    label: 'Difficulty sustaining attention in tasks',
-    description: 'Has trouble keeping attention on tasks or play activities',
-    importance: 0.165
-  },
-  {
-    key: 'fidgeting',
-    label: 'Fidgets with hands/feet or squirms',
-    description: 'Often fidgets with or taps hands or feet, or squirms in seat',
-    importance: 0.142
-  },
-  {
-    key: 'careless_mistakes',
-    label: 'Makes careless mistakes in work',
-    description: 'Often makes careless mistakes in schoolwork, at work, or with other activities',
-    importance: 0.138
-  },
-  {
-    key: 'difficulty_waiting',
-    label: 'Difficulty waiting turn',
-    description: 'Has difficulty waiting his or her turn',
-    importance: 0.129
-  },
-  {
-    key: 'leaves_seat',
-    label: 'Leaves seat inappropriately',
-    description: 'Often leaves seat in situations when remaining seated is expected',
-    importance: 0.125
-  },
-  {
-    key: 'interrupts_others',
-    label: 'Interrupts or intrudes on others',
-    description: 'Often interrupts or intrudes on others (e.g., conversations, games)',
-    importance: 0.118
-  },
-  {
-    key: 'loses_things',
-    label: 'Loses things necessary for tasks',
-    description: 'Often loses things necessary for tasks/activities (e.g., school materials, pencils)',
-    importance: 0.112
-  },
-  {
-    key: 'forgetful_activities',
-    label: 'Forgetful in daily activities',
-    description: 'Often forgetful in daily activities',
-    importance: 0.106
-  },
-  {
-    key: 'talks_excessively',
-    label: 'Talks excessively',
-    description: 'Often talks excessively',
-    importance: 0.098
-  },
-  {
-    key: 'difficulty_organizing',
-    label: 'Difficulty organizing tasks',
-    description: 'Often has trouble organizing tasks and activities',
-    importance: 0.087
-  }
-];
 
 // Full patient data - 150 patients with recalculated CPRA scores
 const allPatients = [
@@ -234,15 +171,6 @@ const allPatients = [
   { id: 'KWT-150', age: 63, ethnicity: 'Mixed', antigens: 12, m1: 93.5, m2: 97.1, m3: 99.2, risk: 'Very High' },
 ];
 
-// Available HLA antigens for selection (Basic calculator)
-const hlaLoci = {
-  'HLA-A': ['A1', 'A2', 'A3', 'A11', 'A23', 'A24', 'A25', 'A26', 'A29', 'A30', 'A31', 'A32', 'A33', 'A34', 'A36', 'A66', 'A68', 'A69', 'A74', 'A80'],
-  'HLA-B': ['B7', 'B8', 'B13', 'B15', 'B17', 'B18', 'B27', 'B35', 'B37', 'B38', 'B39', 'B40', 'B41', 'B42', 'B44', 'B45', 'B46', 'B47', 'B48', 'B49', 'B50', 'B51', 'B52', 'B53', 'B54', 'B55', 'B56', 'B57', 'B58', 'B59', 'B60', 'B61', 'B62', 'B63', 'B64', 'B65', 'B67', 'B70', 'B71', 'B72', 'B73', 'B75', 'B76', 'B77', 'B78', 'B81', 'B82'],
-  'HLA-C': ['Cw1', 'Cw2', 'Cw3', 'Cw4', 'Cw5', 'Cw6', 'Cw7', 'Cw8', 'Cw9', 'Cw10', 'Cw12', 'Cw14', 'Cw15', 'Cw16', 'Cw17', 'Cw18'],
-  'HLA-DR': ['DR1', 'DR3', 'DR4', 'DR7', 'DR8', 'DR9', 'DR10', 'DR11', 'DR12', 'DR13', 'DR14', 'DR15', 'DR16', 'DR17', 'DR18'],
-  'HLA-DQ': ['DQ2', 'DQ3', 'DQ4', 'DQ5', 'DQ6', 'DQ7', 'DQ8', 'DQ9'],
-  'HLA-DP': ['DP1', 'DP2', 'DP3', 'DP4', 'DP5', 'DP6', 'DP7', 'DP8', 'DP9', 'DP10', 'DP11', 'DP13', 'DP14', 'DP17', 'DP18', 'DP19', 'DP20', 'DP21']
-};
 
 // Enhanced HLA loci for M2 Calculator (matches Python code)
 const hlaLociM2 = {
@@ -266,12 +194,6 @@ interface HLAData {
   ethnicity?: string;
 }
 
-interface CPRAResult {
-  score: number;
-  riskLevel: string;
-  compatibleDonors: number;
-  recommendations: string[];
-}
 
 interface CPRAM2Result {
   cpra_proportion: number;
@@ -307,29 +229,6 @@ interface CPRAM2Result {
   };
 }
 
-interface CPRAM3Result {
-  cpra_percentage: number;
-  confidence_interval: [number, number];
-  prediction_confidence: number;
-  model_performance: {
-    algorithm: string;
-    accuracy: number;
-    precision: number;
-    recall: number;
-    f1_score: number;
-  };
-  feature_importance: Record<string, number>;
-  risk_factors: {
-    high_risk_combinations: string[];
-    protective_factors: string[];
-  };
-  methodology: {
-    model_type: string;
-    training_data: string;
-    cross_validation: string;
-    ensemble_methods: string[];
-  };
-}
 
 export default function Project7Page() {
   // Password protection states removed
@@ -337,21 +236,12 @@ export default function Project7Page() {
 
   const [hlaData, setHlaData] = useState<HLAData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [calculating, setCalculating] = useState(false);
-  const [cpraResult, setCpraResult] = useState<CPRAResult | null>(null);
-  const [selectedAntigens, setSelectedAntigens] = useState<string[]>([]);
   const [patientEthnicity, setPatientEthnicity] = useState('mixed');
-  const [expandedSection, setExpandedSection] = useState<string>('calculator');
+  const [expandedSection, setExpandedSection] = useState<string>('calculator-m2');
   
   // M2 Calculator states
   const [cpraM2Result, setCpraM2Result] = useState<CPRAM2Result | null>(null);
   const [calculatingM2, setCalculatingM2] = useState(false);
-  const [cpraM3Result, setCpraM3Result] = useState<CPRAM3Result | null>(null);
-  const [calculatingM3, setCalculatingM3] = useState(false);
-  const [selectedAntigensM3, setSelectedAntigensM3] = useState<Record<string, number[]>>({});
-  const [patientAge, setPatientAge] = useState<number>(45);
-  const [previousTransplants, setPreviousTransplants] = useState<number>(0);
-  const [bloodType, setBloodType] = useState<string>('O');
   const [selectedAntigensM2, setSelectedAntigensM2] = useState<Record<string, number[]>>({});
   const [ethnicWeights, setEthnicWeights] = useState<Record<string, number>>({
     'Kuwaiti': 0.40,
@@ -360,11 +250,6 @@ export default function Project7Page() {
     'Southeast Asian': 0.08,
     'Other': 0.02
   });
-  // ADHD Prediction states
-  const [selectedMlAlgorithm, setSelectedMlAlgorithm] = useState<string>('ensemble');
-  const [adhdInputs, setAdhdInputs] = useState<Record<string, number>>({});
-  const [adhdResult, setAdhdResult] = useState<any>(null);
-  const [adhdLoading, setAdhdLoading] = useState(false);
   
   // Pagination state for patient results table
   const [currentPage, setCurrentPage] = useState(1);
@@ -389,21 +274,6 @@ export default function Project7Page() {
   }, []);
 
 
-  const generateSampleHLAData = (): HLAData[] => {
-    const sampleData: HLAData[] = [];
-    Object.entries(hlaLoci).forEach(([locus, antigens]) => {
-      antigens.forEach(antigen => {
-        sampleData.push({
-          locus,
-          allele: antigen,
-          frequency: Math.random() * 0.3 + 0.05, // Random frequency between 0.05 and 0.35
-          ethnicity: 'Kuwaiti'
-        });
-      });
-    });
-    return sampleData;
-  };
-
   const fetchHLAData = async () => {
     try {
       const response = await fetch('/api/hla-data');
@@ -416,171 +286,13 @@ export default function Project7Page() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to load HLA data. Using default frequencies.",
+        description: "Failed to load HLA data.",
         variant: "destructive",
       });
-      // Use sample data if API fails
-      setHlaData(generateSampleHLAData());
+      setHlaData([]);
     } finally {
       setLoading(false);
     }
-  };
-
-  const calculateCPRA = () => {
-    if (selectedAntigens.length === 0) {
-      toast({
-        title: "No antigens selected",
-        description: "Please select at least one unacceptable antigen to calculate CPRA.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setCalculating(true);
-    
-    // Debug logging
-    console.log('=== M1 CPRA Calculation Debug ===');
-    console.log('Selected antigens:', selectedAntigens);
-    console.log('HLA data loaded:', hlaData.length, 'records');
-    console.log('Sample HLA data:', hlaData.slice(0, 5));
-
-    // Simulate calculation delay
-    setTimeout(() => {
-      let totalIncompatibility = 0;
-      let processedAntigens = 0;
-
-      selectedAntigens.forEach(antigen => {
-        // Parse antigen name to extract locus and allele number
-        // UI format: 'A1', 'A2', 'B7', 'DR1', 'Cw1', 'DQ2', 'DP1'
-        // Database format: locus='A', allele='1' (stored in separate columns)
-        
-        let locusToMatch = '';
-        let alleleToMatch = '';
-        
-        // HLA-A, HLA-B patterns: 'A1' -> locus='A', allele='1'
-        if (antigen.match(/^[AB]\d+$/)) {
-          locusToMatch = antigen[0];
-          alleleToMatch = antigen.substring(1);
-        }
-        // HLA-C patterns: 'Cw1' -> locus='C', allele='1'
-        else if (antigen.match(/^Cw\d+$/)) {
-          locusToMatch = 'C';
-          alleleToMatch = antigen.substring(2);
-        }
-        // HLA-DR patterns: 'DR1' -> locus='DRB1' or 'DR', allele='1'
-        else if (antigen.match(/^DR\d+$/)) {
-          locusToMatch = 'DRB1'; // Try DRB1 first
-          alleleToMatch = antigen.substring(2);
-        }
-        // HLA-DQ patterns: 'DQ2' -> locus='DQB1' or 'DQ', allele='2'
-        else if (antigen.match(/^DQ\d+$/)) {
-          locusToMatch = 'DQB1'; // Try DQB1 first
-          alleleToMatch = antigen.substring(2);
-        }
-        // HLA-DP patterns: 'DP1' -> locus='DPB1' or 'DP', allele='1'
-        else if (antigen.match(/^DP\d+$/)) {
-          locusToMatch = 'DPB1'; // Try DPB1 first
-          alleleToMatch = antigen.substring(2);
-        }
-        
-        console.log(`Searching for antigen: ${antigen}, locus: ${locusToMatch}, allele: ${alleleToMatch}`);
-        
-        // Try to find a match in the database
-        let hlaMatch = hlaData.find(hla => 
-          hla.locus === locusToMatch && 
-          (hla.allele === alleleToMatch || 
-           hla.allele === parseInt(alleleToMatch).toString() ||
-           parseInt(hla.allele) === parseInt(alleleToMatch))
-        );
-        
-        console.log(`First match attempt: ${hlaMatch ? 'FOUND' : 'NOT FOUND'}`);
-        
-        // If DRB1/DQB1/DPB1 didn't match, try shorter form (DR/DQ/DP)
-        if (!hlaMatch && locusToMatch.length > 2) {
-          const shortLocus = locusToMatch.substring(0, 2) || locusToMatch.substring(0, 3);
-          console.log(`Trying short locus: ${shortLocus}`);
-          hlaMatch = hlaData.find(hla => 
-            hla.locus === shortLocus && 
-            (hla.allele === alleleToMatch || 
-             hla.allele === parseInt(alleleToMatch).toString() ||
-             parseInt(hla.allele) === parseInt(alleleToMatch))
-          );
-          console.log(`Short locus match attempt: ${hlaMatch ? 'FOUND' : 'NOT FOUND'}`);
-        }
-        
-        if (hlaMatch) {
-          console.log(`✓ Matched ${antigen} to locus=${hlaMatch.locus}, allele=${hlaMatch.allele}, freq=${hlaMatch.frequency}`);
-          // Apply ethnicity weighting
-          let adjustedFreq = hlaMatch.frequency;
-          if (patientEthnicity === 'kuwaiti') {
-            adjustedFreq *= 1.2; // Higher weight for Kuwaiti population
-          } else if (patientEthnicity === 'arab') {
-            adjustedFreq *= 1.1; // Moderate weight for Arab population
-          }
-          
-          totalIncompatibility += Math.min(adjustedFreq, 1.0);
-          processedAntigens++;
-        }
-      });
-
-      // Check if any antigens were processed
-      if (processedAntigens === 0) {
-        setCalculating(false);
-        toast({
-          title: "No matching antigens found",
-          description: "The selected antigens were not found in the HLA database. Please try different selections or contact support.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Calculate CPRA score (percentage of incompatible donors)
-      const cpraScore = Math.min((totalIncompatibility / processedAntigens) * 100, 95);
-      const compatibleDonors = Math.round((100 - cpraScore) / 100 * 1000); // Assume 1000 total donors
-
-      let riskLevel = 'Low';
-      const recommendations: string[] = [];
-
-      if (cpraScore >= 80) {
-        riskLevel = 'Very High';
-        recommendations.push('Consider desensitization therapy');
-        recommendations.push('Explore virtual crossmatch protocols');
-        recommendations.push('Consider paired kidney exchange programs');
-      } else if (cpraScore >= 50) {
-        riskLevel = 'High';
-        recommendations.push('Monitor for compatible donors actively');
-        recommendations.push('Consider expanded donor criteria');
-      } else if (cpraScore >= 20) {
-        riskLevel = 'Moderate';
-        recommendations.push('Standard matching protocols sufficient');
-        recommendations.push('Regular screening for new antibodies');
-      } else {
-        riskLevel = 'Low';
-        recommendations.push('Excellent transplant compatibility');
-      }
-
-      setCpraResult({
-        score: Math.round(cpraScore * 10) / 10,
-        riskLevel,
-        compatibleDonors,
-        recommendations
-      });
-      setCalculating(false);
-    }, 2000);
-  };
-
-  const toggleAntigen = (antigen: string) => {
-    setSelectedAntigens(prev => 
-      prev.includes(antigen) 
-        ? prev.filter(a => a !== antigen)
-        : [...prev, antigen]
-    );
-  };
-
-  const resetCalculator = () => {
-    setSelectedAntigens([]);
-    setCpraResult(null);
-    setPatientEthnicity('mixed');
   };
 
   // M2 Calculator Functions
@@ -657,107 +369,6 @@ export default function Project7Page() {
       'Southeast Asian': 0.08,
       'Other': 0.02
     });
-  };
-
-  // M3 Calculator Functions
-  const toggleAntigenM3 = (locus: string, antigen: number) => {
-    setSelectedAntigensM3(prev => {
-      const locusList = prev[locus] || [];
-      if (locusList.includes(antigen)) {
-        return {
-          ...prev,
-          [locus]: locusList.filter(a => a !== antigen)
-        };
-      } else {
-        return {
-          ...prev,
-          [locus]: [...locusList, antigen]
-        };
-      }
-    });
-  };
-
-  const calculateCPRAM3 = async () => {
-    setCalculatingM3(true);
-    try {
-      const response = await fetch('/api/cpra-m3', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          unacceptable: selectedAntigensM3,
-          patient_age: patientAge,
-          previous_transplants: previousTransplants,
-          blood_type: bloodType,
-          patient_ethnicity: patientEthnicity
-        })
-      });
-      
-      const data = await response.json();
-      if (data.success) {
-        setCpraM3Result(data);
-        toast({ title: "CPRA M3 calculated successfully", description: "ML-based prediction complete" });
-      } else {
-        throw new Error(data.message || 'Failed to calculate CPRA M3');
-      }
-    } catch (error: any) {
-      console.error('CPRA M3 calculation failed:', error);
-      toast({ title: "Calculation failed", description: error.message, variant: "destructive" });
-    } finally {
-      setCalculatingM3(false);
-    }
-  };
-
-  const calculateAdhdPrediction = async () => {
-    // Validate that at least some features have been filled in
-    const filledFeatures = Object.values(adhdInputs).filter(val => val > 0).length;
-    if (filledFeatures < 5) {
-      toast({
-        title: "Insufficient data",
-        description: "Please provide ratings for at least 5 ADHD features for accurate prediction.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setAdhdLoading(true);
-    try {
-      const response = await fetch('/api/adhd/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          features: adhdInputs,
-          algorithm: selectedMlAlgorithm
-        })
-      });
-      
-      const data = await response.json();
-      if (data.success) {
-        setAdhdResult(data.prediction);
-        toast({ 
-          title: "ADHD prediction complete", 
-          description: `Risk assessment using ${selectedMlAlgorithm} algorithm` 
-        });
-      } else {
-        throw new Error(data.message || 'Failed to predict ADHD risk');
-      }
-    } catch (error: any) {
-      console.error('ADHD prediction failed:', error);
-      toast({ 
-        title: "Prediction failed", 
-        description: error.message || 'Failed to calculate ADHD prediction', 
-        variant: "destructive" 
-      });
-    } finally {
-      setAdhdLoading(false);
-    }
-  };
-
-  const resetCalculatorM3 = () => {
-    setSelectedAntigensM3({});
-    setCpraM3Result(null);
-    setPatientAge(45);
-    setPreviousTransplants(0);
-    setBloodType('O');
   };
 
   const updateEthnicWeight = (ethnicity: string, weight: number) => {
@@ -850,22 +461,12 @@ export default function Project7Page() {
             {/* Elegant methodology showcase */}
             <div className="mb-10">
               <p className="text-lg md:text-xl mb-6 text-blue-200 max-w-4xl mx-auto leading-relaxed font-light">
-                Comprehensive immunological compatibility assessment featuring three advanced methodologies
+                Comprehensive immunological compatibility assessment featuring advanced methodology
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 <div className="group">
-                  <div className="bg-blue-500/20 backdrop-blur-sm border border-blue-300/30 px-4 py-2 rounded-full transition-all duration-300 hover:bg-blue-500/30 hover:scale-105">
-                    <span className="text-blue-100 font-medium">M1: Basic frequency lookup method</span>
-                  </div>
-                </div>
-                <div className="group">
                   <div className="bg-purple-500/20 backdrop-blur-sm border border-purple-300/30 px-4 py-2 rounded-full transition-all duration-300 hover:bg-purple-500/30 hover:scale-105">
                     <span className="text-purple-100 font-medium">M2: Hardy-Weinberg equilibrium with ethnic weighting</span>
-                  </div>
-                </div>
-                <div className="group">
-                  <div className="bg-orange-500/20 backdrop-blur-sm border border-orange-300/30 px-4 py-2 rounded-full transition-all duration-300 hover:bg-orange-500/30 hover:scale-105">
-                    <span className="text-orange-100 font-medium">M3: Machine learning ensemble with confidence intervals</span>
                   </div>
                 </div>
               </div>
@@ -949,19 +550,6 @@ export default function Project7Page() {
               </div>
               <TabsList className="flex min-w-max bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg rounded-xl p-2 gap-2 w-max mx-3">
                 <TabsTrigger 
-                  value="calculator" 
-                  className="flex flex-col items-center gap-1.5 py-3 px-3 rounded-lg transition-all duration-300 data-[state=active]:bg-blue-50 data-[state=active]:shadow-md data-[state=active]:scale-105 hover:bg-blue-50/50 group min-w-[80px] border border-transparent data-[state=active]:border-blue-300 bg-white/80"
-                >
-                  <div className="p-1.5 rounded-md bg-blue-100 group-data-[state=active]:bg-blue-200 transition-colors">
-                    <Calculator className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xs font-bold text-gray-900 group-data-[state=active]:text-blue-900">M1</div>
-                    <div className="text-xs text-gray-600 group-data-[state=active]:text-blue-700">Basic</div>
-                  </div>
-                </TabsTrigger>
-                
-                <TabsTrigger 
                   value="calculator-m2" 
                   className="flex flex-col items-center gap-1.5 py-3 px-3 rounded-lg transition-all duration-300 data-[state=active]:bg-purple-50 data-[state=active]:shadow-md data-[state=active]:scale-105 hover:bg-purple-50/50 group min-w-[80px] border border-transparent data-[state=active]:border-purple-300 bg-white/80"
                 >
@@ -971,19 +559,6 @@ export default function Project7Page() {
                   <div className="text-center">
                     <div className="text-xs font-bold text-gray-900 group-data-[state=active]:text-purple-900">M2</div>
                     <div className="text-xs text-gray-600 group-data-[state=active]:text-purple-700">H-W</div>
-                  </div>
-                </TabsTrigger>
-                
-                <TabsTrigger 
-                  value="calculator-m3" 
-                  className="flex flex-col items-center gap-1.5 py-3 px-3 rounded-lg transition-all duration-300 data-[state=active]:bg-orange-50 data-[state=active]:shadow-md data-[state=active]:scale-105 hover:bg-orange-50/50 group min-w-[80px] border border-transparent data-[state=active]:border-orange-300 bg-white/80"
-                >
-                  <div className="p-1.5 rounded-md bg-orange-100 group-data-[state=active]:bg-orange-200 transition-colors">
-                    <Zap className="w-4 h-4 text-orange-600" />
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xs font-bold text-gray-900 group-data-[state=active]:text-orange-900">M3</div>
-                    <div className="text-xs text-gray-600 group-data-[state=active]:text-orange-700">ML</div>
                   </div>
                 </TabsTrigger>
                 
@@ -1049,19 +624,7 @@ export default function Project7Page() {
             </div>
             
             {/* Desktop: grid layout tabs */}
-            <TabsList className="hidden md:grid w-full grid-cols-8 bg-white/70 backdrop-blur-sm border border-gray-200/60 shadow-lg rounded-2xl p-2 h-auto">
-              <TabsTrigger 
-                value="calculator" 
-                className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl transition-all duration-300 data-[state=active]:bg-blue-50 data-[state=active]:shadow-md data-[state=active]:border-blue-200 hover:bg-blue-50/50 group"
-              >
-                <div className="p-2 rounded-lg bg-blue-100 group-data-[state=active]:bg-blue-200 transition-colors">
-                  <Calculator className="w-5 h-5 text-blue-600" />
-                </div>
-                <div className="text-center">
-                  <div className="text-sm font-semibold text-gray-900 group-data-[state=active]:text-blue-900">CPRA Calculator</div>
-                  <div className="text-xs text-gray-600 group-data-[state=active]:text-blue-700 font-medium">M1 • Basic Frequency</div>
-                </div>
-              </TabsTrigger>
+            <TabsList className="hidden md:grid w-full grid-cols-5 bg-white/70 backdrop-blur-sm border border-gray-200/60 shadow-lg rounded-2xl p-2 h-auto">
               
               <TabsTrigger 
                 value="calculator-m2" 
@@ -1073,19 +636,6 @@ export default function Project7Page() {
                 <div className="text-center">
                   <div className="text-sm font-semibold text-gray-900 group-data-[state=active]:text-purple-900">CPRA Calculator</div>
                   <div className="text-xs text-gray-600 group-data-[state=active]:text-purple-700 font-medium">M2 • Hardy-Weinberg</div>
-                </div>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="calculator-m3" 
-                className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl transition-all duration-300 data-[state=active]:bg-orange-50 data-[state=active]:shadow-md data-[state=active]:border-orange-200 hover:bg-orange-50/50 group"
-              >
-                <div className="p-2 rounded-lg bg-orange-100 group-data-[state=active]:bg-orange-200 transition-colors">
-                  <Zap className="w-5 h-5 text-orange-600" />
-                </div>
-                <div className="text-center">
-                  <div className="text-sm font-semibold text-gray-900 group-data-[state=active]:text-orange-900">CPRA Calculator</div>
-                  <div className="text-xs text-gray-600 group-data-[state=active]:text-orange-700 font-medium">M3 • Machine Learning</div>
                 </div>
               </TabsTrigger>
               
@@ -1141,157 +691,6 @@ export default function Project7Page() {
             </TabsList>
           </div>
 
-          {/* CPRA Calculator Tab */}
-          <TabsContent value="calculator">
-            <div className="grid lg:grid-cols-2 gap-4 lg:gap-8">
-              {/* Input Panel */}
-              <Card className="border-0 shadow-lg">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Users className="w-5 h-5 text-blue-600" />
-                    Patient Information
-                  </CardTitle>
-                  <CardDescription className="text-sm">
-                    Select unacceptable antigens and patient ethnicity
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 md:space-y-6">
-                  <div>
-                    <Label htmlFor="ethnicity">Patient Ethnicity</Label>
-                    <Select value={patientEthnicity} onValueChange={setPatientEthnicity}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="kuwaiti">Kuwaiti</SelectItem>
-                        <SelectItem value="arab">Other Arab</SelectItem>
-                        <SelectItem value="asian">Asian</SelectItem>
-                        <SelectItem value="mixed">Mixed/Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label className="text-base font-medium">Unacceptable Antigens</Label>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Select antigens that the patient has developed antibodies against
-                    </p>
-                    
-                    <div className="space-y-3 md:space-y-4 max-h-80 md:max-h-96 overflow-y-auto scrollbar-hide">
-                      {Object.entries(hlaLoci).map(([locus, antigens]) => (
-                        <div key={locus} className="border rounded-lg p-3 md:p-4">
-                          <h4 className="font-medium text-gray-900 mb-2 md:mb-3 text-sm md:text-base">{locus}</h4>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                            {antigens.map(antigen => (
-                              <div key={antigen} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={antigen}
-                                  checked={selectedAntigens.includes(antigen)}
-                                  onCheckedChange={() => toggleAntigen(antigen)}
-                                  className="h-4 w-4"
-                                />
-                                <Label htmlFor={antigen} className="text-xs md:text-sm cursor-pointer">{antigen}</Label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button 
-                      onClick={calculateCPRA} 
-                      disabled={calculating || selectedAntigens.length === 0}
-                      className="flex-1 h-10 md:h-12"
-                      size="default"
-                    >
-                      {calculating ? 'Calculating...' : 'Calculate CPRA'}
-                    </Button>
-                    <Button variant="outline" onClick={resetCalculator} className="h-10 md:h-12 sm:w-auto">
-                      Reset
-                    </Button>
-                  </div>
-
-                  {selectedAntigens.length > 0 && (
-                    <div>
-                      <Label className="text-sm font-medium">Selected Antigens ({selectedAntigens.length})</Label>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {selectedAntigens.map(antigen => (
-                          <Badge key={antigen} variant="secondary" className="cursor-pointer" onClick={() => toggleAntigen(antigen)}>
-                            {antigen} ×
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Results Panel */}
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-green-600" />
-                    CPRA Results
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {calculating && (
-                    <div className="text-center py-8">
-                      <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-                      <p className="text-gray-600">Calculating CPRA score...</p>
-                      <Progress value={65} className="mt-4" />
-                    </div>
-                  )}
-
-                  {cpraResult && !calculating && (
-                    <div className="space-y-6">
-                      <div className="text-center">
-                        <div className={`text-4xl font-bold ${getScoreColor(cpraResult.score)} mb-2`}>
-                          {cpraResult.score}%
-                        </div>
-                        <p className="text-gray-600">CPRA Score</p>
-                        <Badge variant={getRiskBadgeVariant(cpraResult.riskLevel)} className="mt-2">
-                          {cpraResult.riskLevel} Risk
-                        </Badge>
-                      </div>
-
-                      <div className="border rounded-lg p-4 bg-gray-50">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-gray-700">Compatible Donors:</span>
-                          <span className="font-semibold text-green-600">{cpraResult.compatibleDonors}/1000</span>
-                        </div>
-                        <Progress value={(cpraResult.compatibleDonors / 1000) * 100} className="h-2" />
-                      </div>
-
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-blue-600" />
-                          Recommendations
-                        </h4>
-                        <ul className="space-y-2">
-                          {cpraResult.recommendations.map((rec, index) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2"></div>
-                              <span className="text-gray-700">{rec}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-
-                  {!calculating && !cpraResult && (
-                    <div className="text-center py-8 text-gray-500">
-                      <Calculator className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>Select antigens and calculate CPRA to see results</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
 
           {/* CPRA Calculator M2 Tab */}
           <TabsContent value="calculator-m2">
@@ -1559,290 +958,6 @@ export default function Project7Page() {
             </div>
           </TabsContent>
 
-          {/* CPRA Calculator M3 Tab */}
-          <TabsContent value="calculator-m3">
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* M3 Input Panel */}
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-orange-600" />
-                    ML-Based CPRA Calculator (M3)
-                  </CardTitle>
-                  <CardDescription>
-                    Advanced machine learning prediction with ensemble algorithms
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <Label className="text-base font-medium">Patient Characteristics</Label>
-                    <div className="grid grid-cols-2 gap-4 mt-3">
-                      <div>
-                        <Label className="text-sm font-medium">Age:</Label>
-                        <Input
-                          type="number"
-                          min="1"
-                          max="100"
-                          value={patientAge}
-                          onChange={(e) => setPatientAge(parseInt(e.target.value) || 45)}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium">Previous Transplants:</Label>
-                        <Input
-                          type="number"
-                          min="0"
-                          max="5"
-                          value={previousTransplants}
-                          onChange={(e) => setPreviousTransplants(parseInt(e.target.value) || 0)}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium">Blood Type:</Label>
-                        <Select value={bloodType} onValueChange={setBloodType}>
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="A">A</SelectItem>
-                            <SelectItem value="B">B</SelectItem>
-                            <SelectItem value="AB">AB</SelectItem>
-                            <SelectItem value="O">O</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium">Ethnicity:</Label>
-                        <Select value={patientEthnicity} onValueChange={setPatientEthnicity}>
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="kuwaiti">Kuwaiti</SelectItem>
-                            <SelectItem value="arab">Other Arab</SelectItem>
-                            <SelectItem value="asian">Asian</SelectItem>
-                            <SelectItem value="mixed">Mixed/Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="text-base font-medium">Unacceptable Antigens (M3)</Label>
-                    <p className="text-sm text-gray-600 mb-4">
-                      ML model analyzes complex antigen patterns and interactions
-                    </p>
-                    
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {Object.entries(hlaLociM2).map(([locus, antigens]) => (
-                        <div key={locus} className="border rounded-lg p-4">
-                          <h4 className="font-medium text-gray-900 mb-3">
-                            {locus} ({selectedAntigensM3[locus]?.length || 0} selected)
-                          </h4>
-                          <div className="grid grid-cols-6 gap-2">
-                            {antigens.map(antigen => (
-                              <div key={antigen} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={`m3-${locus}-${antigen}`}
-                                  checked={selectedAntigensM3[locus]?.includes(antigen) || false}
-                                  onCheckedChange={() => toggleAntigenM3(locus, antigen)}
-                                />
-                                <Label htmlFor={`m3-${locus}-${antigen}`} className="text-sm">
-                                  {locus === 'C' ? `Cw${antigen}` : antigen}
-                                </Label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <Button 
-                      onClick={calculateCPRAM3} 
-                      disabled={calculatingM3 || Object.keys(selectedAntigensM3).length === 0}
-                      className="flex-1"
-                    >
-                      {calculatingM3 ? 'Training ML Model...' : 'Calculate CPRA M3'}
-                    </Button>
-                    <Button variant="outline" onClick={resetCalculatorM3}>
-                      Reset
-                    </Button>
-                  </div>
-
-                  {Object.keys(selectedAntigensM3).length > 0 && (
-                    <div>
-                      <Label className="text-sm font-medium">
-                        Selected Antigens ({Object.values(selectedAntigensM3).reduce((sum, arr) => sum + arr.length, 0)} total)
-                      </Label>
-                      <div className="space-y-2 mt-2">
-                        {Object.entries(selectedAntigensM3).map(([locus, antigens]) => (
-                          <div key={locus} className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-orange-600">{locus}:</span>
-                            <div className="flex flex-wrap gap-1">
-                              {antigens.map(antigen => (
-                                <Badge 
-                                  key={antigen} 
-                                  variant="secondary" 
-                                  className="cursor-pointer" 
-                                  onClick={() => toggleAntigenM3(locus, antigen)}
-                                >
-                                  {locus === 'C' ? `Cw${antigen}` : antigen} ×
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* M3 Results Panel */}
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-orange-600" />
-                    CPRA M3 Results
-                  </CardTitle>
-                  <CardDescription>
-                    Machine learning ensemble prediction with confidence intervals
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {calculatingM3 && (
-                    <div className="text-center py-8">
-                      <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-                      <p className="text-gray-600">Training ensemble ML models...</p>
-                      <Progress value={85} className="mt-4" />
-                    </div>
-                  )}
-
-                  {cpraM3Result && !calculatingM3 && (
-                    <div className="space-y-6">
-                      <div className="text-center">
-                        <div className={`text-4xl font-bold ${getScoreColor(cpraM3Result.cpra_percentage)} mb-2`}>
-                          {cpraM3Result.cpra_percentage.toFixed(2)}%
-                        </div>
-                        <p className="text-gray-600">CPRA M3 Score</p>
-                        <div className="text-sm text-gray-500 mt-1">
-                          95% CI: [{cpraM3Result.confidence_interval[0].toFixed(1)}%, {cpraM3Result.confidence_interval[1].toFixed(1)}%]
-                        </div>
-                        <Badge variant="outline" className="mt-2">
-                          {cpraM3Result.model_performance.algorithm}
-                        </Badge>
-                      </div>
-
-                      <div className="border rounded-lg p-4 bg-orange-50">
-                        <h4 className="font-medium text-gray-900 mb-3">Model Performance Metrics</h4>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="font-medium">Accuracy:</span> {(cpraM3Result.model_performance.accuracy * 100).toFixed(1)}%
-                          </div>
-                          <div>
-                            <span className="font-medium">Precision:</span> {(cpraM3Result.model_performance.precision * 100).toFixed(1)}%
-                          </div>
-                          <div>
-                            <span className="font-medium">Recall:</span> {(cpraM3Result.model_performance.recall * 100).toFixed(1)}%
-                          </div>
-                          <div>
-                            <span className="font-medium">F1-Score:</span> {(cpraM3Result.model_performance.f1_score * 100).toFixed(1)}%
-                          </div>
-                        </div>
-                        <div className="mt-3 pt-3 border-t border-orange-200">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium">Prediction Confidence:</span>
-                            <span className="text-sm font-bold text-orange-700">
-                              {(cpraM3Result.prediction_confidence * 100).toFixed(1)}%
-                            </span>
-                          </div>
-                          <Progress value={cpraM3Result.prediction_confidence * 100} className="mt-2 h-2" />
-                        </div>
-                      </div>
-
-                      <div className="border rounded-lg p-4 bg-blue-50">
-                        <h4 className="font-medium text-gray-900 mb-3">Feature Importance</h4>
-                        <div className="space-y-2 max-h-32 overflow-y-auto">
-                          {Object.entries(cpraM3Result.feature_importance).map(([feature, importance]) => (
-                            <div key={feature} className="flex justify-between items-center">
-                              <span className="text-sm text-gray-600">{feature}:</span>
-                              <div className="flex items-center gap-2">
-                                <div className="w-16 h-2 bg-gray-200 rounded-full">
-                                  <div 
-                                    className="h-full bg-blue-600 rounded-full" 
-                                    style={{ width: `${importance * 100}%` }}
-                                  ></div>
-                                </div>
-                                <span className="text-sm font-medium">{(importance * 100).toFixed(1)}%</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="border rounded-lg p-4 bg-red-50">
-                        <h4 className="font-medium text-gray-900 mb-3">Risk Assessment</h4>
-                        <div className="space-y-3">
-                          <div>
-                            <p className="text-sm font-medium text-red-800">High-Risk Combinations:</p>
-                            <ul className="text-xs text-gray-700 space-y-1 mt-2">
-                              {cpraM3Result.risk_factors.high_risk_combinations.map((combo, index) => (
-                                <li key={index} className="flex items-start gap-2">
-                                  <div className="w-1 h-1 bg-red-600 rounded-full mt-1.5 flex-shrink-0"></div>
-                                  {combo}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-green-800">Protective Factors:</p>
-                            <ul className="text-xs text-gray-700 space-y-1 mt-2">
-                              {cpraM3Result.risk_factors.protective_factors.map((factor, index) => (
-                                <li key={index} className="flex items-start gap-2">
-                                  <div className="w-1 h-1 bg-green-600 rounded-full mt-1.5 flex-shrink-0"></div>
-                                  {factor}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="border rounded-lg p-4 bg-gray-50">
-                        <h4 className="font-medium text-gray-900 mb-3">ML Methodology</h4>
-                        <div className="space-y-2 text-sm">
-                          <div>
-                            <span className="font-medium">Model Type:</span> {cpraM3Result.methodology.model_type}
-                          </div>
-                          <div>
-                            <span className="font-medium">Training Data:</span> {cpraM3Result.methodology.training_data}
-                          </div>
-                          <div>
-                            <span className="font-medium">Cross-Validation:</span> {cpraM3Result.methodology.cross_validation}
-                          </div>
-                          <div>
-                            <span className="font-medium">Ensemble Methods:</span> {cpraM3Result.methodology.ensemble_methods.join(', ')}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {!calculatingM3 && !cpraM3Result && (
-                    <div className="text-center py-8 text-gray-500">
-                      <Zap className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>Configure patient data and select antigens for ML prediction</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
 
           {/* HLA Data Tab */}
           <TabsContent value="data">
@@ -1864,12 +979,12 @@ export default function Project7Page() {
                   </div>
                 ) : (
                   <div className="grid lg:grid-cols-2 gap-6">
-                    {Object.entries(hlaLoci).map(([locus, antigens]) => (
+                    {Object.entries(hlaLociM2).map(([locus, antigens]) => (
                       <div key={locus} className="border rounded-lg p-4">
                         <h3 className="font-semibold text-gray-900 mb-3">{locus} Frequencies</h3>
                         <div className="space-y-2 max-h-64 overflow-y-auto">
                           {antigens.slice(0, 10).map(antigen => {
-                            const freq = hlaData.find(h => h.allele === antigen)?.frequency || 0;
+                            const freq = hlaData.find(h => h.allele === antigen.toString())?.frequency || 0;
                             return (
                               <div key={antigen} className="flex justify-between items-center">
                                 <span className="text-sm text-gray-600">{antigen}</span>
@@ -1984,28 +1099,13 @@ export default function Project7Page() {
                           Computational Algorithms
                         </h3>
                         <div className="space-y-4">
-                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-5 border border-blue-200">
-                            <h4 className="font-semibold text-blue-900 mb-2">Method 1: Basic Frequency Lookup</h4>
-                            <div className="font-mono text-sm bg-white p-3 rounded border">
-                              CPRA = Σ(f<sub>i</sub>) where f<sub>i</sub> = frequency of unacceptable antigen i
-                            </div>
-                          </div>
                           <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-5 border border-purple-200">
-                            <h4 className="font-semibold text-purple-900 mb-2">Method 2: Hardy-Weinberg Equilibrium</h4>
+                            <h4 className="font-semibold text-purple-900 mb-2">Hardy-Weinberg Equilibrium</h4>
                             <div className="font-mono text-sm bg-white p-3 rounded border">
                               CPRA = Σ w<sub>e</sub> (1 - Π<sub>L</sub> (1 - Σ p<sub>e,u</sub>)²)
                             </div>
                             <p className="text-xs text-purple-700 mt-2">
                               Incorporating population genetics principles with ethnic stratification
-                            </p>
-                          </div>
-                          <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-5 border border-orange-200">
-                            <h4 className="font-semibold text-orange-900 mb-2">Method 3: Machine Learning Ensemble</h4>
-                            <div className="font-mono text-sm bg-white p-3 rounded border">
-                              CPRA = Ensemble(RF, GB, NN) + CI<sub>95%</sub>
-                            </div>
-                            <p className="text-xs text-orange-700 mt-2">
-                              Advanced ML with Random Forest, Gradient Boosting, and Neural Networks
                             </p>
                           </div>
                         </div>
@@ -2017,10 +1117,6 @@ export default function Project7Page() {
                       <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
                         <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">Performance Metrics</h3>
                         <div className="space-y-4">
-                          <div className="text-center">
-                            <div className="text-3xl font-bold text-indigo-600">94.0%</div>
-                            <div className="text-sm text-gray-600">ML Model Accuracy</div>
-                          </div>
                           <div className="text-center">
                             <div className="text-3xl font-bold text-purple-600">1,247</div>
                             <div className="text-sm text-gray-600">Donor Samples</div>
@@ -2159,39 +1255,31 @@ export default function Project7Page() {
               <CardHeader className="bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-t-lg">
                 <CardTitle className="flex items-center gap-3 text-xl">
                   <Table className="w-6 h-6" />
-                  Patient CPRA Comparative Analysis
+                  Patient CPRA Analysis
                 </CardTitle>
                 <CardDescription className="text-rose-100 text-base">
-                  Multi-methodology CPRA calculations for transplant candidates
+                  Population-specific CPRA calculations for transplant candidates
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-8">
                 <div className="space-y-6">
                   {/* Summary Statistics - Mobile optimized */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+                  <div className="grid grid-cols-2 gap-3 md:gap-6">
                     <div className="bg-white rounded-xl shadow-md border border-blue-200 p-4 md:p-6 text-center">
                       <div className="text-2xl md:text-3xl font-bold text-blue-600 mb-1 md:mb-2">150</div>
                       <div className="text-xs md:text-sm text-gray-600">Total Patients</div>
                     </div>
                     <div className="bg-white rounded-xl shadow-md border border-purple-200 p-4 md:p-6 text-center">
                       <div className="text-2xl md:text-3xl font-bold text-purple-600 mb-1 md:mb-2">62.4%</div>
-                      <div className="text-xs md:text-sm text-gray-600">Avg M2 CPRA</div>
-                    </div>
-                    <div className="bg-white rounded-xl shadow-md border border-orange-200 p-4 md:p-6 text-center">
-                      <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-1 md:mb-2">65.7%</div>
-                      <div className="text-xs md:text-sm text-gray-600">Avg M3 CPRA</div>
-                    </div>
-                    <div className="bg-white rounded-xl shadow-md border border-green-200 p-4 md:p-6 text-center">
-                      <div className="text-2xl md:text-3xl font-bold text-green-600 mb-1 md:mb-2">0.96</div>
-                      <div className="text-xs md:text-sm text-gray-600">M2-M3 Correlation</div>
+                      <div className="text-xs md:text-sm text-gray-600">Avg CPRA Score</div>
                     </div>
                   </div>
 
                   {/* Patient Results Table - Mobile optimized */}
                   <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                     <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-3 md:p-4 border-b border-gray-200">
-                      <h3 className="text-base md:text-lg font-bold text-gray-900">Patient CPRA Results Comparison</h3>
-                      <p className="text-xs md:text-sm text-gray-600 mt-1">Calculated using M1 (Basic), M2 (Hardy-Weinberg), and M3 (Machine Learning) methodologies</p>
+                      <h3 className="text-base md:text-lg font-bold text-gray-900">Patient CPRA Results</h3>
+                      <p className="text-xs md:text-sm text-gray-600 mt-1">Calculated using M2 (Hardy-Weinberg) methodology with ethnic weighting</p>
                     </div>
                     
                     {/* Mobile: Cards view */}
@@ -2228,18 +1316,10 @@ export default function Project7Page() {
                             <div className="text-sm text-gray-600 mb-3">
                               <strong>Antigens:</strong> {patient.antigens}
                             </div>
-                            <div className="grid grid-cols-3 gap-2 text-center">
-                              <div className="bg-blue-50 rounded p-2">
-                                <div className={`text-sm font-medium ${getScoreColor(patient.m1)}`}>{patient.m1.toFixed(1)}%</div>
-                                <div className="text-xs text-blue-600">M1</div>
-                              </div>
+                            <div className="grid grid-cols-1 gap-2 text-center">
                               <div className="bg-purple-50 rounded p-2">
                                 <div className={`text-sm font-medium ${getScoreColor(patient.m2)}`}>{patient.m2.toFixed(1)}%</div>
-                                <div className="text-xs text-purple-600">M2</div>
-                              </div>
-                              <div className="bg-orange-50 rounded p-2">
-                                <div className={`text-sm font-medium ${getScoreColor(patient.m3)}`}>{patient.m3.toFixed(1)}%</div>
-                                <div className="text-xs text-orange-600">M3</div>
+                                <div className="text-xs text-purple-600">CPRA Score</div>
                               </div>
                             </div>
                           </div>
@@ -2256,9 +1336,7 @@ export default function Project7Page() {
                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Age</th>
                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Ethnicity</th>
                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Unacceptable<br/>Antigens</th>
-                            <th className="px-6 py-4 text-center text-xs font-semibold text-blue-600 uppercase tracking-wider bg-blue-50">M1 CPRA<br/><span className="text-xs normal-case">Basic</span></th>
-                            <th className="px-6 py-4 text-center text-xs font-semibold text-purple-600 uppercase tracking-wider bg-purple-50">M2 CPRA<br/><span className="text-xs normal-case">Hardy-Weinberg</span></th>
-                            <th className="px-6 py-4 text-center text-xs font-semibold text-orange-600 uppercase tracking-wider bg-orange-50">M3 CPRA<br/><span className="text-xs normal-case">ML Ensemble</span></th>
+                            <th className="px-6 py-4 text-center text-xs font-semibold text-purple-600 uppercase tracking-wider bg-purple-50">CPRA Score<br/><span className="text-xs normal-case">Hardy-Weinberg</span></th>
                             <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Risk Level</th>
                           </tr>
                         </thead>
@@ -2282,22 +1360,16 @@ export default function Project7Page() {
                             };
 
                             return (
-                              <tr key={patient.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                              <tr key={patient.id} className="hover:bg-gray-50 transition-colors">
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{patient.id}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{patient.age}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{patient.ethnicity}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">{patient.antigens}</td>
-                                <td className={`px-6 py-4 whitespace-nowrap text-sm text-center bg-blue-25 ${getScoreColor(patient.m1)}`}>
-                                  {patient.m1.toFixed(1)}%
-                                </td>
-                                <td className={`px-6 py-4 whitespace-nowrap text-sm text-center bg-purple-25 ${getScoreColor(patient.m2)}`}>
-                                  {patient.m2.toFixed(1)}%
-                                </td>
-                                <td className={`px-6 py-4 whitespace-nowrap text-sm text-center bg-orange-25 ${getScoreColor(patient.m3)}`}>
-                                  {patient.m3.toFixed(1)}%
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.age}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.ethnicity}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.antigens}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-center bg-purple-50/30">
+                                  <span className={`text-sm ${getScoreColor(patient.m2)}`}>{patient.m2.toFixed(1)}%</span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-center">
-                                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRiskColor(patient.risk)}`}>
+                                  <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRiskColor(patient.risk)}`}>
                                     {patient.risk}
                                   </span>
                                 </td>
@@ -2308,106 +1380,55 @@ export default function Project7Page() {
                       </table>
                     </div>
                     
-                    {/* Pagination Controls - Mobile optimized */}
-                    <div className="px-3 md:px-6 py-3 md:py-4 bg-gray-50 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-0">
-                      <div className="flex items-center text-xs md:text-sm text-gray-600">
-                        Showing {startIndex + 1} to {Math.min(endIndex, allPatients.length)} of {allPatients.length} patients
-                      </div>
-                      <div className="flex items-center space-x-1 md:space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setCurrentPage(currentPage - 1)}
-                          disabled={currentPage === 1}
-                          className="flex items-center space-x-1"
-                        >
-                          <ChevronLeft className="w-4 h-4" />
-                          <span>Previous</span>
-                        </Button>
-                        
-                        <div className="flex items-center space-x-1">
-                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                            <Button
-                              key={page}
-                              variant={currentPage === page ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => setCurrentPage(page)}
-                              className="w-8 h-8 p-0"
-                            >
-                              {page}
-                            </Button>
-                          ))}
+                    {/* Pagination */}
+                    <div className="bg-gray-50 px-4 py-3 border-t border-gray-200 flex items-center justify-between sm:px-6">
+                      <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm text-gray-700">
+                            Showing <span className="font-medium">{startIndex + 1}</span> to <span className="font-medium">{Math.min(endIndex, allPatients.length)}</span> of <span className="font-medium">{allPatients.length}</span> results
+                          </p>
                         </div>
-                        
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setCurrentPage(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                          className="flex items-center space-x-1"
-                        >
-                          <span>Next</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </Button>
+                        <div>
+                          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                              disabled={currentPage === 1}
+                              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                            >
+                              <span className="sr-only">Previous</span>
+                              <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                            </Button>
+                            {[...Array(totalPages)].map((_, i) => (
+                              <Button
+                                key={i}
+                                variant={currentPage === i + 1 ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setCurrentPage(i + 1)}
+                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium
+                                  ${currentPage === i + 1 
+                                    ? 'z-10 bg-indigo-600 border-indigo-600 text-white' 
+                                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                  }`}
+                              >
+                                {i + 1}
+                              </Button>
+                            ))}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                              disabled={currentPage === totalPages}
+                              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                            >
+                              <span className="sr-only">Next</span>
+                              <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                            </Button>
+                          </nav>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Analysis Summary */}
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <Card className="border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
-                      <CardHeader>
-                        <CardTitle className="text-blue-900 text-lg">Methodology Comparison</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-blue-800">M1 vs M2 Correlation:</span>
-                            <span className="font-semibold text-blue-900">0.89</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-blue-800">M2 vs M3 Correlation:</span>
-                            <span className="font-semibold text-blue-900">0.94</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-blue-800">M1 vs M3 Correlation:</span>
-                            <span className="font-semibold text-blue-900">0.91</span>
-                          </div>
-                          <div className="pt-2 border-t border-blue-200">
-                            <span className="text-xs text-blue-700">Strong correlation validates methodology consistency</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="border border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50">
-                      <CardHeader>
-                        <CardTitle className="text-rose-900 text-lg">Risk Stratification</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-rose-800">Low Risk (&lt;40%):</span>
-                            <span className="font-semibold text-green-600">32 patients</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-rose-800">Moderate Risk (40-70%):</span>
-                            <span className="font-semibold text-yellow-600">58 patients</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-rose-800">High Risk (70-85%):</span>
-                            <span className="font-semibold text-orange-600">43 patients</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-rose-800">Very High Risk (&gt;85%):</span>
-                            <span className="font-semibold text-red-600">17 patients</span>
-                          </div>
-                          <div className="pt-2 border-t border-rose-200">
-                            <span className="text-xs text-rose-700">M3 methodology provides most accurate risk assessment</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
                   </div>
                 </div>
               </CardContent>

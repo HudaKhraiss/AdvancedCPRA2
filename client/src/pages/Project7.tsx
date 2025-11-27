@@ -332,12 +332,8 @@ interface CPRAM3Result {
 }
 
 export default function Project7Page() {
-  // Password protection states
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  // Password protection states removed
   const [isLoading, setIsLoading] = useState(false);
-  const [authToken, setAuthToken] = useState<string | null>(null);
 
   const [hlaData, setHlaData] = useState<HLAData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -384,182 +380,14 @@ export default function Project7Page() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  // Check for existing session on mount
+  // Check for existing session on mount - REMOVED
+
+  // Load HLA data on mount
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const savedToken = localStorage.getItem('project7-auth-token');
-        if (savedToken) {
-          const response = await fetch('/api/project7-session', {
-            headers: {
-              'Authorization': `Bearer ${savedToken}`
-            }
-          });
-          const data = await response.json();
-          if (data.authenticated) {
-            setAuthToken(savedToken);
-            setIsAuthenticated(true);
-          } else {
-            // Token is invalid/expired, remove it
-            localStorage.removeItem('project7-auth-token');
-          }
-        }
-      } catch (error) {
-        console.error('Session check failed:', error);
-        localStorage.removeItem('project7-auth-token');
-      }
-    };
-    
-    checkSession();
+    console.log('✓ Loading HLA data...');
+    fetchHLAData();
   }, []);
 
-  // Load HLA data when authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      console.log('✓ User authenticated, loading HLA data...');
-      fetchHLAData();
-    }
-  }, [isAuthenticated]);
-
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setPasswordError('');
-
-    try {
-      const response = await fetch('/api/verify-project7-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.token) {
-          setAuthToken(data.token);
-          localStorage.setItem('project7-auth-token', data.token);
-          setIsAuthenticated(true);
-          setPassword('');
-        }
-      } else {
-        const errorData = await response.json();
-        setPasswordError(errorData.error || 'Authentication failed. Please try again.');
-      }
-    } catch (error) {
-      setPasswordError('Authentication failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // If not authenticated, show elegant password form
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
-        </div>
-
-        {/* Main content */}
-        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="w-full max-w-md"
-          >
-            <Card className="bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
-              <CardHeader className="text-center pb-2">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
-                  className="mx-auto w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
-                >
-                  <Lock className="w-10 h-10 text-white" />
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                >
-                  <CardTitle className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                    Project 7 Access
-                  </CardTitle>
-                  <CardDescription className="text-gray-300 mt-3 text-lg">
-                    This research dashboard is password protected. Please enter your access credentials to continue.
-                  </CardDescription>
-                </motion.div>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <motion.form
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5, duration: 0.5 }}
-                  onSubmit={handlePasswordSubmit}
-                  className="space-y-6"
-                >
-                  <div>
-                    <Input
-                      type="password"
-                      placeholder="Enter access code"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-4 text-lg bg-white/5 border-white/20 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 rounded-xl transition-all duration-300"
-                      autoFocus
-                      disabled={isLoading}
-                    />
-                    {passwordError && (
-                      <motion.p
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="text-red-400 text-sm mt-3 flex items-center gap-2"
-                      >
-                        <AlertCircle className="w-4 h-4" />
-                        {passwordError}
-                      </motion.p>
-                    )}
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 rounded-xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 shadow-lg"
-                    disabled={!password.trim() || isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Verifying Access...
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <Shield className="w-5 h-5" />
-                        Access Dashboard
-                      </div>
-                    )}
-                  </Button>
-                </motion.form>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7, duration: 0.5 }}
-                  className="mt-6 text-center"
-                >
-                  <p className="text-xs text-gray-400">
-                    Authorized personnel only • Research data protected
-                  </p>
-                </motion.div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
 
   const generateSampleHLAData = (): HLAData[] => {
     const sampleData: HLAData[] = [];

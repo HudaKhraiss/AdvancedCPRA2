@@ -530,14 +530,7 @@ export default function Project7Page() {
                 <span className="text-blue-100">Dr. Nada Al-Shatti</span>
               </div>
               <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full border border-white/20">
-                <a 
-                  href="https://www.linkedin.com/in/ahmad-alsaber-phd-a11b7925/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="transition-transform hover:scale-110"
-                >
-                  <img src={drAhmadPhoto} alt="Dr. Ahmad Alsaber" className="w-8 h-8 rounded-full border border-blue-300" />
-                </a>
+                <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                 <span className="text-white font-medium">Co-Principal Investigator:</span>
                 <span className="text-purple-100">Dr. Ahmad Alsaber</span>
               </div>

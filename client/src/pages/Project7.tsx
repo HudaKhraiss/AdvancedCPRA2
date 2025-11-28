@@ -1552,31 +1552,6 @@ export default function Project7Page() {
                           </div>
                         </div>
 
-                        {/* Impact & Recognition */}
-                        <div className="bg-gradient-to-r from-purple-100 to-indigo-100 rounded-xl p-6 border border-purple-200">
-                          <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5" />
-                            Research Impact & Future Directions
-                          </h3>
-                          <div className="grid md:grid-cols-3 gap-4">
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-purple-600 mb-2">96%</div>
-                              <div className="text-sm text-purple-800">ML Model Accuracy</div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-indigo-600 mb-2">150</div>
-                              <div className="text-sm text-indigo-800">Patient Validations</div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-purple-600 mb-2">3</div>
-                              <div className="text-sm text-purple-800">Advanced Methodologies</div>
-                            </div>
-                          </div>
-                          <p className="text-purple-800 text-sm mt-4 text-center italic">
-                            Advancing precision medicine through computational excellence
-                          </p>
-                        </div>
-
                         {/* Contact & Collaboration */}
                         <div className="bg-white rounded-xl border border-purple-200 p-6">
                           <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
@@ -1592,14 +1567,7 @@ export default function Project7Page() {
                                   <span><strong>Dr. Nada Al-Shatti</strong> - Lead Researcher</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <a 
-                                    href="https://www.linkedin.com/in/ahmad-alsaber-phd-a11b7925/" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="transition-transform hover:scale-110"
-                                  >
-                                    <img src={drAhmadPhoto} alt="Dr. Ahmad Alsaber" className="w-4 h-4 rounded-full border border-indigo-300" />
-                                  </a>
+                                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                                   <span><strong>Dr. Ahmad Alsaber</strong> - Co-Principal Investigator</span>
                                 </div>
                               </div>

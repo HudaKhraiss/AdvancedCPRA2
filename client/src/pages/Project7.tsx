@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Dna, Calculator, Shield, Award, ChevronDown, ChevronUp, BarChart3, Target, Globe, CheckCircle, Zap, BookOpen, Table, ChevronLeft, ChevronRight, TrendingUp, Brain, Lock, AlertCircle } from 'lucide-react';
+import { Users, Dna, Calculator, Shield, Award, ChevronDown, ChevronUp, BarChart3, Target, Globe, CheckCircle, Zap, BookOpen, Table, ChevronLeft, ChevronRight, TrendingUp, Brain, Lock, AlertCircle, Check, ChevronsUpDown, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,9 +12,72 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 import asiaLogo from '@assets/generated_images/asian_medical_logo.png';
 import drAhmadPhoto from '@assets/generated_images/professional_doctor_headshot.png';
 import dnaBackground from '@assets/generated_images/dna_helix_background.png';
+
+
+// MultiSelect Component
+function MultiSelect({ options, selected, onChange, placeholder, labelPrefix = "" }: { options: string[], selected: string[], onChange: (val: string[]) => void, placeholder: string, labelPrefix?: string }) {
+  const [open, setOpen] = useState(false)
+
+  const handleSelect = (currentValue: string) => {
+    const isSelected = selected.includes(currentValue)
+    if (isSelected) {
+      onChange(selected.filter((item) => item !== currentValue))
+    } else {
+      onChange([...selected, currentValue])
+    }
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
+        >
+          <span className="truncate">
+            {selected.length > 0
+              ? `${selected.length} selected`
+              : placeholder}
+          </span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[200px] p-0" align="start">
+        <Command>
+          <CommandInput placeholder={`Search...`} />
+          <CommandList>
+             <CommandEmpty>No antigen found.</CommandEmpty>
+             <CommandGroup className="max-h-64 overflow-auto">
+              {options.map((option) => (
+                <CommandItem
+                  key={option}
+                  value={option}
+                  onSelect={() => handleSelect(option)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      selected.includes(option) ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {labelPrefix}{option}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
 
 
 // Full patient data - 150 patients with recalculated CPRA scores
@@ -796,25 +859,47 @@ export default function Project7Page() {
                       Select antigens using numeric codes (e.g., A2, B51, DRB1*07)
                     </p>
                     
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-h-[600px] overflow-y-auto pr-2">
                       {Object.entries(hlaLociM2).map(([locus, antigens]) => (
-                        <div key={locus} className="border rounded-lg p-4">
-                          <h4 className="font-medium text-gray-900 mb-3">
-                            {locus} ({selectedAntigensM2[locus]?.length || 0} selected)
-                          </h4>
-                          <div className="grid grid-cols-6 gap-2">
-                            {antigens.map(antigen => (
-                              <div key={antigen} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={`${locus}-${antigen}`}
-                                  checked={selectedAntigensM2[locus]?.includes(antigen) || false}
-                                  onCheckedChange={() => toggleAntigenM2(locus, antigen)}
-                                />
-                                <Label htmlFor={`${locus}-${antigen}`} className="text-sm">
-                                  {locus === 'C' ? `Cw${antigen}` : antigen}
-                                </Label>
-                              </div>
-                            ))}
+                        <div key={locus} className="space-y-2 border rounded-xl p-4 bg-slate-50/50">
+                          <div className="flex justify-between items-center mb-1">
+                             <Label className="text-base font-semibold text-slate-800">
+                               {locus} Locus
+                             </Label>
+                             <Badge variant="outline" className="bg-white">
+                               {selectedAntigensM2[locus]?.length || 0} selected
+                             </Badge>
+                          </div>
+                          <MultiSelect
+                            options={antigens.map(String)}
+                            selected={(selectedAntigensM2[locus] || []).map(String)}
+                            onChange={(newSelected) => {
+                              setSelectedAntigensM2(prev => ({
+                                ...prev,
+                                [locus]: newSelected.map(Number)
+                              }))
+                            }}
+                            placeholder={`Select ${locus} antigens...`}
+                            labelPrefix={locus === 'C' ? 'Cw' : ''}
+                          />
+                          
+                          {/* Selected tags area */}
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {selectedAntigensM2[locus]?.length > 0 ? (
+                              selectedAntigensM2[locus]?.map(antigen => (
+                                <Badge key={antigen} variant="secondary" className="pl-2.5 pr-1 py-1 flex items-center gap-1 bg-white border shadow-sm hover:bg-slate-50">
+                                  <span className="font-medium text-purple-700">{locus === 'C' ? `Cw${antigen}` : antigen}</span>
+                                  <button
+                                    className="ml-1 p-0.5 hover:bg-red-100 hover:text-red-600 rounded-full transition-colors"
+                                    onClick={() => toggleAntigenM2(locus, antigen)}
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </Badge>
+                              ))
+                            ) : (
+                              <span className="text-xs text-gray-400 italic pl-1">No antigens selected</span>
+                            )}
                           </div>
                         </div>
                       ))}

@@ -15,10 +15,6 @@ import { useTranslation } from 'react-i18next';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import asiaLogo from '@assets/generated_images/asian_medical_logo.png';
-import drAhmadPhoto from '@assets/generated_images/professional_doctor_headshot.png';
-import dnaBackground from '@assets/generated_images/dna_helix_background.png';
-
 
 // MultiSelect Component
 function MultiSelect({ options, selected, onChange, placeholder, labelPrefix = "" }: { options: string[], selected: string[], onChange: (val: string[]) => void, placeholder: string, labelPrefix?: string }) {
@@ -80,159 +76,16 @@ function MultiSelect({ options, selected, onChange, placeholder, labelPrefix = "
 }
 
 
-// Full patient data - 150 patients with recalculated CPRA scores
-const allPatients = [
-  { id: 'KWT-001', age: 45, ethnicity: 'Kuwaiti', antigens: 8, m1: 68.2, m2: 71.4, m3: 73.8, risk: 'High' },
-  { id: 'KWT-002', age: 32, ethnicity: 'Other Arab', antigens: 5, m1: 42.6, m2: 45.1, m3: 47.2, risk: 'Moderate' },
-  { id: 'KWT-003', age: 58, ethnicity: 'South Asian', antigens: 12, m1: 89.3, m2: 92.1, m3: 94.5, risk: 'Very High' },
-  { id: 'KWT-004', age: 28, ethnicity: 'Kuwaiti', antigens: 3, m1: 28.4, m2: 31.2, m3: 29.7, risk: 'Low' },
-  { id: 'KWT-005', age: 51, ethnicity: 'Southeast Asian', antigens: 7, m1: 61.8, m2: 64.3, m3: 67.1, risk: 'High' },
-  { id: 'KWT-006', age: 39, ethnicity: 'Other Arab', antigens: 4, m1: 35.2, m2: 37.8, m3: 38.9, risk: 'Moderate' },
-  { id: 'KWT-007', age: 44, ethnicity: 'Kuwaiti', antigens: 9, m1: 74.1, m2: 77.6, m3: 79.3, risk: 'High' },
-  { id: 'KWT-008', age: 62, ethnicity: 'South Asian', antigens: 6, m1: 55.7, m2: 58.9, m3: 61.4, risk: 'Moderate' },
-  { id: 'KWT-009', age: 35, ethnicity: 'Mixed', antigens: 11, m1: 83.6, m2: 86.2, m3: 88.7, risk: 'Very High' },
-  { id: 'KWT-010', age: 26, ethnicity: 'Kuwaiti', antigens: 2, m1: 18.3, m2: 20.1, m3: 19.8, risk: 'Low' },
-  { id: 'KWT-011', age: 47, ethnicity: 'Other Arab', antigens: 8, m1: 66.9, m2: 69.7, m3: 72.1, risk: 'High' },
-  { id: 'KWT-012', age: 53, ethnicity: 'Southeast Asian', antigens: 5, m1: 48.2, m2: 51.4, m3: 53.6, risk: 'Moderate' },
-  { id: 'KWT-013', age: 41, ethnicity: 'South Asian', antigens: 10, m1: 78.5, m2: 81.3, m3: 84.2, risk: 'High' },
-  { id: 'KWT-014', age: 29, ethnicity: 'Kuwaiti', antigens: 3, m1: 31.7, m2: 34.2, m3: 32.9, risk: 'Low' },
-  { id: 'KWT-015', age: 56, ethnicity: 'Mixed', antigens: 7, m1: 63.4, m2: 66.8, m3: 69.5, risk: 'High' },
-  { id: 'KWT-016', age: 33, ethnicity: 'Other Arab', antigens: 4, m1: 38.9, m2: 41.5, m3: 42.7, risk: 'Moderate' },
-  { id: 'KWT-017', age: 49, ethnicity: 'Kuwaiti', antigens: 6, m1: 52.3, m2: 55.1, m3: 57.8, risk: 'Moderate' },
-  { id: 'KWT-018', age: 37, ethnicity: 'South Asian', antigens: 9, m1: 71.6, m2: 74.8, m3: 77.4, risk: 'High' },
-  { id: 'KWT-019', age: 42, ethnicity: 'Southeast Asian', antigens: 5, m1: 45.8, m2: 48.6, m3: 50.3, risk: 'Moderate' },
-  { id: 'KWT-020', age: 59, ethnicity: 'Kuwaiti', antigens: 11, m1: 81.2, m2: 84.7, m3: 87.1, risk: 'Very High' },
-  { id: 'KWT-021', age: 31, ethnicity: 'Mixed', antigens: 4, m1: 36.5, m2: 39.1, m3: 40.8, risk: 'Moderate' },
-  { id: 'KWT-022', age: 48, ethnicity: 'Other Arab', antigens: 7, m1: 59.7, m2: 62.4, m3: 65.2, risk: 'High' },
-  { id: 'KWT-023', age: 38, ethnicity: 'South Asian', antigens: 8, m1: 69.1, m2: 72.3, m3: 75.6, risk: 'High' },
-  { id: 'KWT-024', age: 27, ethnicity: 'Kuwaiti', antigens: 2, m1: 21.4, m2: 23.8, m3: 22.9, risk: 'Low' },
-  { id: 'KWT-025', age: 54, ethnicity: 'Southeast Asian', antigens: 9, m1: 75.8, m2: 78.9, m3: 81.4, risk: 'High' },
-  { id: 'KWT-026', age: 43, ethnicity: 'Kuwaiti', antigens: 6, m1: 54.1, m2: 57.3, m3: 59.7, risk: 'Moderate' },
-  { id: 'KWT-027', age: 34, ethnicity: 'Other Arab', antigens: 3, m1: 32.8, m2: 35.4, m3: 37.1, risk: 'Low' },
-  { id: 'KWT-028', age: 61, ethnicity: 'South Asian', antigens: 10, m1: 79.4, m2: 82.8, m3: 85.3, risk: 'Very High' },
-  { id: 'KWT-029', age: 25, ethnicity: 'Southeast Asian', antigens: 4, m1: 41.2, m2: 44.6, m3: 46.8, risk: 'Moderate' },
-  { id: 'KWT-030', age: 52, ethnicity: 'Mixed', antigens: 8, m1: 70.3, m2: 73.7, m3: 76.4, risk: 'High' },
-  { id: 'KWT-031', age: 36, ethnicity: 'Kuwaiti', antigens: 5, m1: 47.9, m2: 50.8, m3: 52.4, risk: 'Moderate' },
-  { id: 'KWT-032', age: 46, ethnicity: 'Other Arab', antigens: 7, m1: 63.5, m2: 66.9, m3: 69.8, risk: 'High' },
-  { id: 'KWT-033', age: 30, ethnicity: 'South Asian', antigens: 3, m1: 29.1, m2: 32.5, m3: 31.7, risk: 'Low' },
-  { id: 'KWT-034', age: 55, ethnicity: 'Southeast Asian', antigens: 9, m1: 76.2, m2: 79.6, m3: 82.1, risk: 'High' },
-  { id: 'KWT-035', age: 40, ethnicity: 'Mixed', antigens: 6, m1: 58.7, m2: 61.4, m3: 64.2, risk: 'Moderate' },
-  { id: 'KWT-036', age: 24, ethnicity: 'Kuwaiti', antigens: 2, m1: 19.6, m2: 22.1, m3: 21.3, risk: 'Low' },
-  { id: 'KWT-037', age: 50, ethnicity: 'Other Arab', antigens: 8, m1: 71.8, m2: 75.2, m3: 78.1, risk: 'High' },
-  { id: 'KWT-038', age: 38, ethnicity: 'South Asian', antigens: 7, m1: 64.9, m2: 68.3, m3: 71.4, risk: 'High' },
-  { id: 'KWT-039', age: 33, ethnicity: 'Southeast Asian', antigens: 4, m1: 39.4, m2: 42.7, m3: 44.9, risk: 'Moderate' },
-  { id: 'KWT-040', age: 57, ethnicity: 'Mixed', antigens: 11, m1: 84.3, m2: 87.9, m3: 90.5, risk: 'Very High' },
-  { id: 'KWT-041', age: 42, ethnicity: 'Kuwaiti', antigens: 5, m1: 46.8, m2: 49.7, m3: 52.1, risk: 'Moderate' },
-  { id: 'KWT-042', age: 29, ethnicity: 'Other Arab', antigens: 6, m1: 56.3, m2: 59.8, m3: 62.4, risk: 'Moderate' },
-  { id: 'KWT-043', age: 63, ethnicity: 'South Asian', antigens: 9, m1: 77.5, m2: 81.1, m3: 84.7, risk: 'High' },
-  { id: 'KWT-044', age: 35, ethnicity: 'Southeast Asian', antigens: 3, m1: 33.7, m2: 36.9, m3: 38.5, risk: 'Low' },
-  { id: 'KWT-045', age: 48, ethnicity: 'Mixed', antigens: 8, m1: 69.2, m2: 72.8, m3: 75.9, risk: 'High' },
-  { id: 'KWT-046', age: 27, ethnicity: 'Kuwaiti', antigens: 4, m1: 37.5, m2: 40.9, m3: 42.6, risk: 'Moderate' },
-  { id: 'KWT-047', age: 53, ethnicity: 'Other Arab', antigens: 7, m1: 62.1, m2: 65.7, m3: 68.3, risk: 'High' },
-  { id: 'KWT-048', age: 41, ethnicity: 'South Asian', antigens: 6, m1: 53.8, m2: 57.2, m3: 59.9, risk: 'Moderate' },
-  { id: 'KWT-049', age: 32, ethnicity: 'Southeast Asian', antigens: 5, m1: 44.6, m2: 47.9, m3: 50.2, risk: 'Moderate' },
-  { id: 'KWT-050', age: 60, ethnicity: 'Mixed', antigens: 10, m1: 80.7, m2: 84.4, m3: 87.6, risk: 'Very High' },
-  { id: 'KWT-051', age: 26, ethnicity: 'Kuwaiti', antigens: 3, m1: 30.2, m2: 33.1, m3: 34.8, risk: 'Low' },
-  { id: 'KWT-052', age: 45, ethnicity: 'Other Arab', antigens: 8, m1: 67.4, m2: 70.9, m3: 73.7, risk: 'High' },
-  { id: 'KWT-053', age: 39, ethnicity: 'South Asian', antigens: 7, m1: 61.7, m2: 65.2, m3: 68.1, risk: 'High' },
-  { id: 'KWT-054', age: 31, ethnicity: 'Southeast Asian', antigens: 4, m1: 38.3, m2: 41.8, m3: 43.9, risk: 'Moderate' },
-  { id: 'KWT-055', age: 56, ethnicity: 'Mixed', antigens: 9, m1: 75.9, m2: 79.5, m3: 82.8, risk: 'High' },
-  { id: 'KWT-056', age: 28, ethnicity: 'Kuwaiti', antigens: 2, m1: 22.7, m2: 25.4, m3: 24.1, risk: 'Low' },
-  { id: 'KWT-057', age: 49, ethnicity: 'Other Arab', antigens: 6, m1: 55.1, m2: 58.6, m3: 61.2, risk: 'Moderate' },
-  { id: 'KWT-058', age: 44, ethnicity: 'South Asian', antigens: 8, m1: 68.8, m2: 72.4, m3: 75.3, risk: 'High' },
-  { id: 'KWT-059', age: 36, ethnicity: 'Southeast Asian', antigens: 5, m1: 43.2, m2: 46.7, m3: 49.1, risk: 'Moderate' },
-  { id: 'KWT-060', age: 58, ethnicity: 'Mixed', antigens: 11, m1: 82.9, m2: 86.7, m3: 89.4, risk: 'Very High' },
-  { id: 'KWT-061', age: 34, ethnicity: 'Kuwaiti', antigens: 4, m1: 36.9, m2: 40.2, m3: 42.1, risk: 'Moderate' },
-  { id: 'KWT-062', age: 47, ethnicity: 'Other Arab', antigens: 7, m1: 60.5, m2: 64.1, m3: 67.2, risk: 'High' },
-  { id: 'KWT-063', age: 52, ethnicity: 'South Asian', antigens: 9, m1: 74.3, m2: 78.1, m3: 81.5, risk: 'High' },
-  { id: 'KWT-064', age: 23, ethnicity: 'Southeast Asian', antigens: 3, m1: 27.4, m2: 30.8, m3: 32.3, risk: 'Low' },
-  { id: 'KWT-065', age: 51, ethnicity: 'Mixed', antigens: 8, m1: 66.7, m2: 70.3, m3: 73.6, risk: 'High' },
-  { id: 'KWT-066', age: 37, ethnicity: 'Kuwaiti', antigens: 5, m1: 45.4, m2: 48.8, m3: 51.7, risk: 'Moderate' },
-  { id: 'KWT-067', age: 43, ethnicity: 'Other Arab', antigens: 6, m1: 52.9, m2: 56.4, m3: 59.3, risk: 'Moderate' },
-  { id: 'KWT-068', age: 59, ethnicity: 'South Asian', antigens: 10, m1: 78.1, m2: 82.3, m3: 85.9, risk: 'Very High' },
-  { id: 'KWT-069', age: 30, ethnicity: 'Southeast Asian', antigens: 4, m1: 35.8, m2: 39.3, m3: 41.7, risk: 'Moderate' },
-  { id: 'KWT-070', age: 54, ethnicity: 'Mixed', antigens: 7, m1: 59.6, m2: 63.2, m3: 66.8, risk: 'High' },
-  { id: 'KWT-071', age: 25, ethnicity: 'Kuwaiti', antigens: 3, m1: 26.1, m2: 29.7, m3: 28.4, risk: 'Low' },
-  { id: 'KWT-072', age: 46, ethnicity: 'Other Arab', antigens: 8, m1: 65.3, m2: 68.9, m3: 72.4, risk: 'High' },
-  { id: 'KWT-073', age: 40, ethnicity: 'South Asian', antigens: 6, m1: 51.7, m2: 55.3, m3: 58.1, risk: 'Moderate' },
-  { id: 'KWT-074', age: 33, ethnicity: 'Southeast Asian', antigens: 5, m1: 42.1, m2: 45.6, m3: 48.3, risk: 'Moderate' },
-  { id: 'KWT-075', age: 61, ethnicity: 'Mixed', antigens: 9, m1: 73.8, m2: 77.6, m3: 81.2, risk: 'High' },
-  { id: 'KWT-076', age: 29, ethnicity: 'Kuwaiti', antigens: 2, m1: 20.9, m2: 23.8, m3: 22.6, risk: 'Low' },
-  { id: 'KWT-077', age: 48, ethnicity: 'Other Arab', antigens: 7, m1: 58.4, m2: 62.1, m3: 65.7, risk: 'High' },
-  { id: 'KWT-078', age: 35, ethnicity: 'South Asian', antigens: 8, m1: 67.2, m2: 71.1, m3: 74.8, risk: 'High' },
-  { id: 'KWT-079', age: 42, ethnicity: 'Southeast Asian', antigens: 4, m1: 37.6, m2: 41.2, m3: 43.5, risk: 'Moderate' },
-  { id: 'KWT-080', age: 55, ethnicity: 'Mixed', antigens: 10, m1: 79.5, m2: 83.7, m3: 87.3, risk: 'Very High' },
-  { id: 'KWT-081', age: 31, ethnicity: 'Kuwaiti', antigens: 5, m1: 44.3, m2: 47.9, m3: 50.6, risk: 'Moderate' },
-  { id: 'KWT-082', age: 50, ethnicity: 'Other Arab', antigens: 6, m1: 54.7, m2: 58.3, m3: 61.5, risk: 'Moderate' },
-  { id: 'KWT-083', age: 38, ethnicity: 'South Asian', antigens: 9, m1: 72.6, m2: 76.4, m3: 79.9, risk: 'High' },
-  { id: 'KWT-084', age: 27, ethnicity: 'Southeast Asian', antigens: 3, m1: 31.5, m2: 34.9, m3: 36.2, risk: 'Low' },
-  { id: 'KWT-085', age: 53, ethnicity: 'Mixed', antigens: 8, m1: 64.1, m2: 67.8, m3: 71.3, risk: 'High' },
-  { id: 'KWT-086', age: 41, ethnicity: 'Kuwaiti', antigens: 4, m1: 40.8, m2: 44.1, m3: 46.7, risk: 'Moderate' },
-  { id: 'KWT-087', age: 32, ethnicity: 'Other Arab', antigens: 7, m1: 57.2, m2: 60.9, m3: 64.1, risk: 'Moderate' },
-  { id: 'KWT-088', age: 62, ethnicity: 'South Asian', antigens: 11, m1: 81.4, m2: 85.8, m3: 89.1, risk: 'Very High' },
-  { id: 'KWT-089', age: 26, ethnicity: 'Southeast Asian', antigens: 4, m1: 34.2, m2: 37.7, m3: 39.8, risk: 'Low' },
-  { id: 'KWT-090', age: 47, ethnicity: 'Mixed', antigens: 6, m1: 56.9, m2: 60.5, m3: 63.9, risk: 'Moderate' },
-  { id: 'KWT-091', age: 39, ethnicity: 'Kuwaiti', antigens: 7, m1: 61.3, m2: 64.8, m3: 68.2, risk: 'High' },
-  { id: 'KWT-092', age: 45, ethnicity: 'Other Arab', antigens: 5, m1: 49.1, m2: 52.6, m3: 55.4, risk: 'Moderate' },
-  { id: 'KWT-093', age: 56, ethnicity: 'South Asian', antigens: 8, m1: 70.7, m2: 74.5, m3: 78.1, risk: 'High' },
-  { id: 'KWT-094', age: 28, ethnicity: 'Southeast Asian', antigens: 3, m1: 28.9, m2: 32.4, m3: 33.7, risk: 'Low' },
-  { id: 'KWT-095', age: 51, ethnicity: 'Mixed', antigens: 9, m1: 76.4, m2: 80.2, m3: 83.7, risk: 'High' },
-  { id: 'KWT-096', age: 34, ethnicity: 'Kuwaiti', antigens: 2, m1: 24.6, m2: 27.3, m3: 26.1, risk: 'Low' },
-  { id: 'KWT-097', age: 44, ethnicity: 'Other Arab', antigens: 6, m1: 53.4, m2: 57.1, m3: 60.2, risk: 'Moderate' },
-  { id: 'KWT-098', age: 37, ethnicity: 'South Asian', antigens: 10, m1: 77.8, m2: 81.9, m3: 85.6, risk: 'Very High' },
-  { id: 'KWT-099', age: 49, ethnicity: 'Southeast Asian', antigens: 7, m1: 62.5, m2: 66.1, m3: 69.4, risk: 'High' },
-  { id: 'KWT-100', age: 60, ethnicity: 'Mixed', antigens: 12, m1: 88.6, m2: 93.2, m3: 96.8, risk: 'Very High' },
-  { id: 'KWT-101', age: 43, ethnicity: 'Kuwaiti', antigens: 5, m1: 48.7, m2: 51.9, m3: 54.3, risk: 'Moderate' },
-  { id: 'KWT-102', age: 36, ethnicity: 'Other Arab', antigens: 8, m1: 70.1, m2: 73.6, m3: 76.7, risk: 'High' },
-  { id: 'KWT-103', age: 52, ethnicity: 'South Asian', antigens: 6, m1: 57.3, m2: 60.8, m3: 63.4, risk: 'Moderate' },
-  { id: 'KWT-104', age: 24, ethnicity: 'Southeast Asian', antigens: 3, m1: 32.1, m2: 35.6, m3: 34.2, risk: 'Low' },
-  { id: 'KWT-105', age: 59, ethnicity: 'Mixed', antigens: 11, m1: 85.7, m2: 89.3, m3: 92.1, risk: 'Very High' },
-  { id: 'KWT-106', age: 41, ethnicity: 'Kuwaiti', antigens: 4, m1: 39.8, m2: 43.2, m3: 45.4, risk: 'Moderate' },
-  { id: 'KWT-107', age: 30, ethnicity: 'Other Arab', antigens: 7, m1: 64.2, m2: 67.7, m3: 70.6, risk: 'High' },
-  { id: 'KWT-108', age: 46, ethnicity: 'South Asian', antigens: 9, m1: 75.4, m2: 79.1, m3: 82.4, risk: 'High' },
-  { id: 'KWT-109', age: 33, ethnicity: 'Southeast Asian', antigens: 5, m1: 46.3, m2: 49.8, m3: 52.6, risk: 'Moderate' },
-  { id: 'KWT-110', age: 57, ethnicity: 'Mixed', antigens: 10, m1: 81.8, m2: 85.6, m3: 88.9, risk: 'Very High' },
-  { id: 'KWT-111', age: 29, ethnicity: 'Kuwaiti', antigens: 2, m1: 23.5, m2: 26.7, m3: 25.3, risk: 'Low' },
-  { id: 'KWT-112', age: 50, ethnicity: 'Other Arab', antigens: 6, m1: 58.9, m2: 62.5, m3: 65.8, risk: 'High' },
-  { id: 'KWT-113', age: 38, ethnicity: 'South Asian', antigens: 8, m1: 72.3, m2: 76.1, m3: 79.6, risk: 'High' },
-  { id: 'KWT-114', age: 27, ethnicity: 'Southeast Asian', antigens: 4, m1: 40.6, m2: 44.3, m3: 46.9, risk: 'Moderate' },
-  { id: 'KWT-115', age: 54, ethnicity: 'Mixed', antigens: 7, m1: 65.8, m2: 69.4, m3: 72.9, risk: 'High' },
-  { id: 'KWT-116', age: 35, ethnicity: 'Kuwaiti', antigens: 3, m1: 34.2, m2: 37.8, m3: 36.1, risk: 'Low' },
-  { id: 'KWT-117', age: 48, ethnicity: 'Other Arab', antigens: 9, m1: 77.9, m2: 81.7, m3: 85.2, risk: 'Very High' },
-  { id: 'KWT-118', age: 42, ethnicity: 'South Asian', antigens: 5, m1: 50.4, m2: 53.9, m3: 56.7, risk: 'Moderate' },
-  { id: 'KWT-119', age: 31, ethnicity: 'Southeast Asian', antigens: 6, m1: 55.6, m2: 59.2, m3: 62.3, risk: 'Moderate' },
-  { id: 'KWT-120', age: 61, ethnicity: 'Mixed', antigens: 12, m1: 90.4, m2: 94.7, m3: 97.9, risk: 'Very High' },
-  { id: 'KWT-121', age: 26, ethnicity: 'Kuwaiti', antigens: 4, m1: 41.7, m2: 45.1, m3: 47.8, risk: 'Moderate' },
-  { id: 'KWT-122', age: 53, ethnicity: 'Other Arab', antigens: 8, m1: 73.6, m2: 77.3, m3: 80.7, risk: 'Very High' },
-  { id: 'KWT-123', age: 40, ethnicity: 'South Asian', antigens: 7, m1: 66.5, m2: 70.1, m3: 73.5, risk: 'High' },
-  { id: 'KWT-124', age: 34, ethnicity: 'Southeast Asian', antigens: 3, m1: 33.4, m2: 36.8, m3: 38.7, risk: 'Low' },
-  { id: 'KWT-125', age: 58, ethnicity: 'Mixed', antigens: 10, m1: 83.2, m2: 87.1, m3: 90.6, risk: 'Very High' },
-  { id: 'KWT-126', age: 25, ethnicity: 'Kuwaiti', antigens: 2, m1: 22.3, m2: 25.1, m3: 23.9, risk: 'Low' },
-  { id: 'KWT-127', age: 47, ethnicity: 'Other Arab', antigens: 6, m1: 60.2, m2: 63.9, m3: 67.1, risk: 'High' },
-  { id: 'KWT-128', age: 39, ethnicity: 'South Asian', antigens: 9, m1: 78.7, m2: 82.6, m3: 86.3, risk: 'Very High' },
-  { id: 'KWT-129', age: 32, ethnicity: 'Southeast Asian', antigens: 5, m1: 47.8, m2: 51.3, m3: 54.1, risk: 'Moderate' },
-  { id: 'KWT-130', age: 55, ethnicity: 'Mixed', antigens: 11, m1: 86.9, m2: 90.8, m3: 93.7, risk: 'Very High' },
-  { id: 'KWT-131', age: 28, ethnicity: 'Kuwaiti', antigens: 4, m1: 38.6, m2: 42.4, m3: 44.8, risk: 'Moderate' },
-  { id: 'KWT-132', age: 51, ethnicity: 'Other Arab', antigens: 7, m1: 67.8, m2: 71.5, m3: 74.9, risk: 'High' },
-  { id: 'KWT-133', age: 44, ethnicity: 'South Asian', antigens: 8, m1: 74.9, m2: 78.8, m3: 82.6, risk: 'Very High' },
-  { id: 'KWT-134', age: 37, ethnicity: 'Southeast Asian', antigens: 6, m1: 59.4, m2: 63.1, m3: 66.5, risk: 'High' },
-  { id: 'KWT-135', age: 62, ethnicity: 'Mixed', antigens: 12, m1: 91.7, m2: 95.4, m3: 98.3, risk: 'Very High' },
-  { id: 'KWT-136', age: 30, ethnicity: 'Kuwaiti', antigens: 3, m1: 31.9, m2: 35.2, m3: 33.8, risk: 'Low' },
-  { id: 'KWT-137', age: 49, ethnicity: 'Other Arab', antigens: 9, m1: 79.6, m2: 83.5, m3: 87.1, risk: 'Very High' },
-  { id: 'KWT-138', age: 43, ethnicity: 'South Asian', antigens: 5, m1: 52.1, m2: 55.7, m3: 58.9, risk: 'Moderate' },
-  { id: 'KWT-139', age: 35, ethnicity: 'Southeast Asian', antigens: 7, m1: 68.3, m2: 72.1, m3: 75.7, risk: 'High' },
-  { id: 'KWT-140', age: 56, ethnicity: 'Mixed', antigens: 10, m1: 84.6, m2: 88.7, m3: 91.9, risk: 'Very High' },
-  { id: 'KWT-141', age: 27, ethnicity: 'Kuwaiti', antigens: 2, m1: 24.1, m2: 27.2, m3: 25.7, risk: 'Low' },
-  { id: 'KWT-142', age: 52, ethnicity: 'Other Arab', antigens: 8, m1: 76.2, m2: 80.1, m3: 83.8, risk: 'Very High' },
-  { id: 'KWT-143', age: 41, ethnicity: 'South Asian', antigens: 6, m1: 61.8, m2: 65.6, m3: 68.9, risk: 'High' },
-  { id: 'KWT-144', age: 33, ethnicity: 'Southeast Asian', antigens: 4, m1: 43.9, m2: 47.6, m3: 50.4, risk: 'Moderate' },
-  { id: 'KWT-145', age: 60, ethnicity: 'Mixed', antigens: 11, m1: 88.1, m2: 92.3, m3: 95.4, risk: 'Very High' },
-  { id: 'KWT-146', age: 29, ethnicity: 'Kuwaiti', antigens: 3, m1: 35.7, m2: 39.4, m3: 37.6, risk: 'Moderate' },
-  { id: 'KWT-147', age: 45, ethnicity: 'Other Arab', antigens: 7, m1: 69.4, m2: 73.2, m3: 76.8, risk: 'High' },
-  { id: 'KWT-148', age: 36, ethnicity: 'South Asian', antigens: 9, m1: 80.9, m2: 84.9, m3: 88.7, risk: 'Very High' },
-  { id: 'KWT-149', age: 48, ethnicity: 'Southeast Asian', antigens: 5, m1: 54.2, m2: 57.9, m3: 61.1, risk: 'Moderate' },
-  { id: 'KWT-150', age: 63, ethnicity: 'Mixed', antigens: 12, m1: 93.5, m2: 97.1, m3: 99.2, risk: 'Very High' },
-];
+interface PatientData {
+  id: string;
+  age: number;
+  ethnicity: string;
+  antigens: number;
+  m1: number;
+  m2: number;
+  m3: number;
+  risk: string;
+}
 
 
 // Enhanced HLA loci for M2 Calculator (matches Python code)
@@ -299,6 +152,8 @@ export default function Project7Page() {
 
   const [hlaData, setHlaData] = useState<HLAData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [allPatients, setAllPatients] = useState<PatientData[]>([]);
+  const [patientsLoading, setPatientsLoading] = useState(true);
   const [patientEthnicity, setPatientEthnicity] = useState('mixed');
   const [expandedSection, setExpandedSection] = useState<string>('calculator-m2');
   
@@ -346,10 +201,12 @@ export default function Project7Page() {
     return data;
   };
 
-  // Load HLA data on mount
+  // Load HLA data and patient data on mount
   useEffect(() => {
     console.log('✓ Loading HLA data...');
     fetchHLAData();
+    console.log('✓ Loading patient data from Excel...');
+    fetchPatientData();
   }, []);
 
 
@@ -367,6 +224,30 @@ export default function Project7Page() {
       setHlaData([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPatientData = async () => {
+    try {
+      const response = await fetch('/api/project7/patient-data');
+      const data = await response.json();
+      
+      if (data.success && data.patients) {
+        setAllPatients(data.patients);
+      } else {
+        throw new Error('Failed to load patient data');
+      }
+    } catch (error) {
+      console.error('Error loading patient data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load patient data from Excel file.",
+        variant: "destructive",
+      });
+      // Fallback to empty array or show error state
+      setAllPatients([]);
+    } finally {
+      setPatientsLoading(false);
     }
   };
 
@@ -527,7 +408,6 @@ export default function Project7Page() {
         {/* DNA Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30" 
-          style={{ backgroundImage: `url(${dnaBackground})` }}
         ></div>
         {/* Elegant background overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-indigo-900/40 to-purple-900/60"></div>
@@ -1394,11 +1274,18 @@ export default function Project7Page() {
                   {/* Summary Statistics - Mobile optimized */}
                   <div className="grid grid-cols-2 gap-3 md:gap-6">
                     <div className="bg-white rounded-xl shadow-md border border-blue-200 p-4 md:p-6 text-center">
-                      <div className="text-2xl md:text-3xl font-bold text-blue-600 mb-1 md:mb-2">150</div>
+                      <div className="text-2xl md:text-3xl font-bold text-blue-600 mb-1 md:mb-2">
+                        {patientsLoading ? '...' : allPatients.length}
+                      </div>
                       <div className="text-xs md:text-sm text-gray-600">Total Patients</div>
                     </div>
                     <div className="bg-white rounded-xl shadow-md border border-purple-200 p-4 md:p-6 text-center">
-                      <div className="text-2xl md:text-3xl font-bold text-purple-600 mb-1 md:mb-2">62.4%</div>
+                      <div className="text-2xl md:text-3xl font-bold text-purple-600 mb-1 md:mb-2">
+                        {patientsLoading ? '...' : 
+                         allPatients.length > 0 ? 
+                         (allPatients.reduce((sum, p) => sum + p.m2, 0) / allPatients.length).toFixed(1) + '%' : 
+                         'N/A'}
+                      </div>
                       <div className="text-xs md:text-sm text-gray-600">Avg CPRA Score</div>
                     </div>
                   </div>
@@ -1407,10 +1294,35 @@ export default function Project7Page() {
                   <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                     <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-3 md:p-4 border-b border-gray-200">
                       <h3 className="text-base md:text-lg font-bold text-gray-900">Patient CPRA Results</h3>
-                      <p className="text-xs md:text-sm text-gray-600 mt-1">Calculated using M2 (Hardy-Weinberg) methodology with ethnic weighting</p>
+                      <p className="text-xs md:text-sm text-gray-600 mt-1">
+                        {patientsLoading ? 'Loading patient data from Excel file...' : 
+                         `Calculated using M2 (Hardy-Weinberg) methodology with ethnic weighting (${allPatients.length} patients)`}
+                      </p>
                     </div>
                     
-                    {/* Mobile: Cards view */}
+                    {/* Loading State */}
+                    {patientsLoading && (
+                      <div className="p-8 text-center">
+                        <div className="animate-spin w-8 h-8 border-4 border-rose-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                        <p className="text-gray-600">Loading patient data from Excel file...</p>
+                      </div>
+                    )}
+                    
+                    {/* No Data State */}
+                    {!patientsLoading && allPatients.length === 0 && (
+                      <div className="p-8 text-center">
+                        <div className="text-gray-500">
+                          <Table className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                          <p>No patient data available</p>
+                          <p className="text-sm mt-2">Please check if the Excel file contains valid data.</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Data loaded */}
+                    {!patientsLoading && allPatients.length > 0 && (
+                      <>
+                        {/* Mobile: Cards view */}
                     <div className="md:hidden p-4 space-y-4 max-h-96 overflow-y-auto">
                       {currentPatients.map((patient, index) => {
                         const getRiskColor = (risk: string) => {
@@ -1557,6 +1469,8 @@ export default function Project7Page() {
                         </div>
                       </div>
                     </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -1582,7 +1496,6 @@ export default function Project7Page() {
                   <Card className="border border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 shadow-lg">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-3 text-purple-900">
-                        <img src={asiaLogo} alt="ASIA Logo" className="w-8 h-8 rounded-full" />
                         ASIA Consulting & Training
                       </CardTitle>
                     </CardHeader>

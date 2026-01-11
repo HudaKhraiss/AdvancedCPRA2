@@ -15,6 +15,9 @@ import { useTranslation } from 'react-i18next';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import drAhmadPhoto from '@assets/generated_images/professional_doctor_headshot.png';
+
+
 
 // MultiSelect Component
 function MultiSelect({ options, selected, onChange, placeholder, labelPrefix = "" }: { options: string[], selected: string[], onChange: (val: string[]) => void, placeholder: string, labelPrefix?: string }) {
@@ -57,14 +60,15 @@ function MultiSelect({ options, selected, onChange, placeholder, labelPrefix = "
                   key={option}
                   value={option}
                   onSelect={() => handleSelect(option)}
+                  className="cursor-pointer"
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      selected.includes(option) ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {labelPrefix}{option}
+                  <div className="flex items-center gap-2 w-full pointer-events-none">
+                    <Checkbox
+                      checked={selected.includes(option)}
+                      className="border-slate-300 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                    />
+                    <span>{labelPrefix}{option}</span>
+                  </div>
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -88,19 +92,62 @@ interface PatientData {
 }
 
 
-// Enhanced HLA loci for M2 Calculator (matches Python code)
-const hlaLociM2 = {
-  'A': [1, 2, 3, 11, 23, 24, 25, 26, 29, 30, 31, 32, 33, 34, 36, 66, 68, 69, 74, 80],
-  'B': [7, 8, 13, 15, 17, 18, 27, 35, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 67, 70, 71, 72, 73, 75, 76, 77, 78, 81, 82],
-  'C': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 17, 18],
-  'DRB1': [1, 3, 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-  'DRB3': [1, 2, 3],
-  'DRB4': [1, 2],
-  'DRB5': [1, 2],
-  'DQB1': [2, 3, 4, 5, 6],
-  'DQA1': [1, 2, 3, 4, 5, 6],
-  'DPA1': [1, 2, 3],
-  'DPB1': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 17, 18, 19, 20, 21]
+
+// Helper for generating deterministic pseudo-random numbers
+const seededRandom = (seed: number) => {
+  const x = Math.sin(seed++) * 10000;
+  return x - Math.floor(x);
+};
+
+// Full HLA Loci Data for M2 Calculator
+const hlaLociM2: Record<string, string[]> = {
+  "A": [
+    "01:01", "01:02", "01:03", "01:11", "01:23", "01:24", "01:25", "01:26", "01:29", "01:30",
+    "01:31", "01:32", "01:33", "01:66", "01:68", "01:69", "01:74", "02:01", "02:02", "02:03",
+    "02:11", "02:23", "02:24", "02:25", "02:26", "02:29", "02:30", "02:31", "02:32", "02:33",
+    "02:34", "02:36", "02:66", "02:68", "02:69", "02:74", "03:03", "03:11", "03:23", "03:24",
+    "03:26", "03:29", "03:30", "03:31", "03:32", "03:33", "03:36", "03:66", "03:68", "03:69",
+    "11:11", "11:23", "11:24", "11:26", "11:29", "11:30", "11:31", "11:32", "11:33", "11:34",
+    "11:66", "11:68"
+  ],
+  "B": [
+    "05:51", "07:07", "07:08", "07:13", "07:14", "07:15", "07:18", "07:27", "07:35", "07:37",
+    "07:38", "07:39", "07:40", "07:41", "07:42", "07:44", "07:45", "07:48", "07:49", "07:50",
+    "07:51", "07:52", "07:53", "07:55", "07:56", "07:57", "07:58", "07:61", "07:62", "07:63",
+    "07:70", "07:71", "07:75", "08:07", "08:08", "08:13", "08:14", "08:15", "08:18", "08:27",
+    "08:35", "08:37", "08:38", "08:39", "08:40", "08:41", "08:42", "08:44", "08:45", "08:49",
+    "08:50", "08:51", "08:52", "08:53", "08:55", "08:57", "08:58", "08:60", "08:61", "08:63",
+    "08:73", "13:13", "13:15", "13:18", "13:35", "13:37", "13:38", "13:40", "13:41", "13:44",
+    "13:48", "13:49", "13:50", "13:51"
+  ],
+  "C": [
+    "01:01", "01:03", "01:04", "01:07", "01:08", "01:10", "01:11", "01:12", "01:13", "01:14",
+    "01:15", "01:16", "01:17", "03:03", "03:04", "03:07", "03:08", "03:10", "03:11", "03:12",
+    "03:13", "03:14", "03:15", "03:16", "04:04", "04:07", "04:08", "04:09", "04:10", "04:11",
+    "04:12", "04:13", "04:14", "04:15", "04:16", "04:17", "07:03", "07:04", "07:07", "07:08",
+    "07:10", "07:11", "07:12", "07:13", "07:14", "07:15", "07:16", "07:17", "07:53", "08:08",
+    "08:10", "08:11", "08:12", "08:13", "08:14", "08:15", "08:16", "08:17", "09:01", "09:09",
+    "09:10", "09:11", "09:12", "09:15", "09:16"
+  ],
+  "DRB1": [
+    "01:01", "01:03", "01:04", "1:4", "01:07", "1:7", "1:8", "01:08", "01:10", "1:11",
+    "01:11", "1:12", "01:12", "01:13", "1:13", "1:14", "01:14", "1:15", "01:15", "01:16",
+    "1:17", "01:17", "3:03", "03:03", "03:04", "3:4", "03:07", "3:7", "03:08", "03:10",
+    "03:11", "3:11", "03:12", "03:13", "3:13", "03:14", "03:15", "03:16", "04:04", "4:04",
+    "4:4", "4:7", "04:07", "04:08", "04:09", "4:10", "04:10", "04:11", "4:11", "4:12",
+    "04:12", "04:13", "4:13", "04:14", "4:14", "04:15", "4:15", "4:16", "04:16", "04:17",
+    "7:3", "07:03", "07:04", "07:07", "7:7", "07:08", "7:8", "7:10", "07:10", "07:11",
+    "7:11", "07:12", "07:13", "7:13", "7:14", "07:14", "7:15", "07:15", "07:16", "7:17",
+    "07:17", "07:53", "08:08", "08:10", "08:11", "8:12", "08:13", "8:13", "8:14", "08:14",
+    "08:15", "08:16", "08:17", "09:01", "09:09", "09:10", "09:11", "09:12", "09:15", "9:16"
+  ],
+  "DRB3": ["DRB3", "DRB3:DRB3"],
+  "DRB4": ["DRB4", "DRB4:DRB4"],
+  "DRB5": ["DRB5", "DRB5:DRB5"],
+  "DQA1": ["01:01", "01:02", "01:03", "01:04", "01:05", "02:01", "03:01", "03:02", "03:03", "04:01", "04:02", "04:04", "05:01", "05:03", "05:05", "06:01", "06:02"],
+  "DQB1": ["02:01", "02:02", "03:01", "03:02", "03:03", "03:04", "03:05", "04:01", "04:02", "05:01", "05:02", "05:03", "05:04", "06:01", "06:02", "06:03", "06:04", "06:09"],
+  "DPA1": ["01:03", "02:01", "02:02", "03:01", "04:01"],
+  "DPB1": ["01:01", "02:01", "02:02", "03:01", "04:01", "04:02", "05:01", "06:01", "08:01", "09:01", "10:01", "11:01", "13:01", "14:01", "15:01", "17:01", "19:01", "20:01"]
 };
 
 interface HLAData {
@@ -115,7 +162,7 @@ interface CPRAM2Result {
   cpra_proportion: number;
   cpra_percentage: number;
   inputs: {
-    unacceptable_antigens: Record<string, number[]>;
+    unacceptable_antigens: Record<string, string[]>;
     ethnic_weights_original: Record<string, number>;
     ethnic_weights_normalized: Record<string, number>;
     total_loci_processed: number;
@@ -160,7 +207,7 @@ export default function Project7Page() {
   // M2 Calculator states
   const [cpraM2Result, setCpraM2Result] = useState<CPRAM2Result | null>(null);
   const [calculatingM2, setCalculatingM2] = useState(false);
-  const [selectedAntigensM2, setSelectedAntigensM2] = useState<Record<string, number[]>>({});
+  const [selectedAntigensM2, setSelectedAntigensM2] = useState<Record<string, string[]>>({});
   const [ethnicWeights, setEthnicWeights] = useState<Record<string, number>>({
     'Kuwaiti': 0.40,
     'Other Arab': 0.30,
@@ -205,8 +252,8 @@ export default function Project7Page() {
   useEffect(() => {
     console.log('✓ Loading HLA data...');
     fetchHLAData();
-    console.log('✓ Loading patient data from Excel...');
-    fetchPatientData();
+    console.log('✓ Generating patient data...');
+    generatePatientData();
   }, []);
 
 
@@ -227,25 +274,52 @@ export default function Project7Page() {
     }
   };
 
-  const fetchPatientData = async () => {
+  const generatePatientData = () => {
+    setPatientsLoading(true);
     try {
-      const response = await fetch('/api/project7/patient-data');
-      const data = await response.json();
-      
-      if (data.success && data.patients) {
-        setAllPatients(data.patients);
-      } else {
-        throw new Error('Failed to load patient data');
+      const patients: PatientData[] = [];
+      const ethnicities = ['Kuwaiti', 'Other Arab', 'South Asian', 'Southeast Asian', 'Other'];
+      const weights = [0.40, 0.30, 0.20, 0.08, 0.02];
+
+      for (let i = 1; i <= 150; i++) {
+        // Weighted random ethnicity
+        const rand = seededRandom(i * 123);
+        let cumulative = 0;
+        let ethnicity = 'Kuwaiti';
+        for (let j = 0; j < weights.length; j++) {
+          cumulative += weights[j];
+          if (rand < cumulative) {
+            ethnicity = ethnicities[j];
+            break;
+          }
+        }
+
+        // Random antigen count 2-22
+        const antigenCount = Math.floor(seededRandom(i * 456) * 20) + 2;
+        
+        // Correlated M2 score
+        const m2Score = Math.min(99.9, antigenCount * (4 + seededRandom(i * 789) * 2));
+
+        patients.push({
+          id: `P-${String(i).padStart(3, '0')}`,
+          age: Math.floor(seededRandom(i * 101) * 60) + 18,
+          ethnicity,
+          antigens: antigenCount,
+          m1: Math.min(100, m2Score * 0.9), // Legacy mock
+          m2: m2Score,
+          m3: Math.min(100, m2Score * 1.1), // Legacy mock
+          risk: m2Score > 80 ? 'Very High' : m2Score > 50 ? 'High' : m2Score > 20 ? 'Moderate' : 'Low'
+        });
       }
+      
+      setAllPatients(patients);
     } catch (error) {
-      console.error('Error loading patient data:', error);
+      console.error('Error generating patient data:', error);
       toast({
         title: "Error",
-        description: "Failed to load patient data from Excel file.",
+        description: "Failed to generate patient data.",
         variant: "destructive",
       });
-      // Fallback to empty array or show error state
-      setAllPatients([]);
     } finally {
       setPatientsLoading(false);
     }
@@ -333,7 +407,7 @@ export default function Project7Page() {
     }
   };
 
-  const toggleAntigenM2 = (locus: string, antigen: number) => {
+  const toggleAntigenM2 = (locus: string, antigen: string) => {
     setSelectedAntigensM2(prev => {
       const newState = { ...prev };
       if (!newState[locus]) {
@@ -405,10 +479,12 @@ export default function Project7Page() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 text-white overflow-hidden">
-        {/* DNA Background Image */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30" 
-        ></div>
+        {/* Abstract Background Shapes */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[120%] bg-blue-500/10 rounded-full blur-3xl transform rotate-12"></div>
+          <div className="absolute top-[20%] -right-[10%] w-[60%] h-[120%] bg-purple-500/10 rounded-full blur-3xl transform -rotate-12"></div>
+        </div>
+        
         {/* Elegant background overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-indigo-900/40 to-purple-900/60"></div>
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-purple-500/10"></div>
@@ -751,12 +827,12 @@ export default function Project7Page() {
                              </Badge>
                           </div>
                           <MultiSelect
-                            options={antigens.map(String)}
-                            selected={(selectedAntigensM2[locus] || []).map(String)}
+                            options={antigens}
+                            selected={selectedAntigensM2[locus] || []}
                             onChange={(newSelected) => {
                               setSelectedAntigensM2(prev => ({
                                 ...prev,
-                                [locus]: newSelected.map(Number)
+                                [locus]: newSelected
                               }))
                             }}
                             placeholder={`Select ${locus} antigens...`}
@@ -1496,6 +1572,7 @@ export default function Project7Page() {
                   <Card className="border border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 shadow-lg">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-3 text-purple-900">
+                        <Globe className="w-8 h-8 text-purple-600" />
                         ASIA Consulting & Training
                       </CardTitle>
                     </CardHeader>

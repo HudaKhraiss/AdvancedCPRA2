@@ -22,6 +22,33 @@ import drAhmadPhoto from '@assets/generated_images/professional_doctor_headshot.
 // MultiSelect Component
 function MultiSelect({ options, selected, onChange, placeholder, labelPrefix = "" }: { options: string[], selected: string[], onChange: (val: string[]) => void, placeholder: string, labelPrefix?: string }) {
   const [open, setOpen] = useState(false)
+  const [searchValue, setSearchValue] = useState("")
+
+  // Determine all options including parent prefixes
+  const extendedOptions = Array.from(new Set(
+    options.flatMap(opt => {
+      if (opt.includes(':')) {
+        return [opt.split(':')[0], opt];
+      }
+      return [opt];
+    })
+  )).sort((a, b) => {
+    const prefixA = a.split(':')[0];
+    const prefixB = b.split(':')[0];
+    const numA = parseInt(prefixA, 10);
+    const numB = parseInt(prefixB, 10);
+    
+    // Sort by prefix number first
+    if (numA !== numB && !isNaN(numA) && !isNaN(numB)) {
+      return numA - numB;
+    }
+    
+    // If same prefix, parent comes BEFORE children
+    if (a === prefixA && b !== prefixB) return -1; // a is parent, b is child
+    if (b === prefixB && a !== prefixA) return 1;  // b is parent, a is child
+    
+    return a.localeCompare(b);
+  });
 
   const handleSelect = (currentValue: string) => {
     const isSelected = selected.includes(currentValue)
@@ -31,6 +58,11 @@ function MultiSelect({ options, selected, onChange, placeholder, labelPrefix = "
       onChange([...selected, currentValue])
     }
   }
+
+  // Filter options based on search
+  const filteredOptions = extendedOptions.filter(opt => 
+    opt.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -51,27 +83,37 @@ function MultiSelect({ options, selected, onChange, placeholder, labelPrefix = "
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
         <Command>
-          <CommandInput placeholder={`Search...`} />
-          <CommandList>
+          <CommandInput 
+            placeholder={`Search...`} 
+            value={searchValue} 
+            onValueChange={setSearchValue} 
+          />
+          <CommandList className="max-h-64 overflow-auto">
              <CommandEmpty>No antigen found.</CommandEmpty>
-             <CommandGroup className="max-h-64 overflow-auto">
-              {options.map((option) => (
-                <CommandItem
-                  key={option}
-                  value={option}
-                  onSelect={() => handleSelect(option)}
-                  className="cursor-pointer"
-                >
-                  <div className="flex items-center gap-2 w-full pointer-events-none">
-                    <Checkbox
-                      checked={selected.includes(option)}
-                      className="border-slate-300 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
-                    />
-                    <span>{labelPrefix}{option}</span>
-                  </div>
-                </CommandItem>
-              ))}
-            </CommandGroup>
+             <CommandGroup>
+               {filteredOptions.map((option) => {
+                 const isParent = !option.includes(':');
+                 return (
+                   <CommandItem
+                     key={option}
+                     value={option}
+                     onSelect={() => handleSelect(option)}
+                     className={cn(
+                       "cursor-pointer",
+                       isParent ? "font-bold border-t border-slate-100 mt-1 pt-2 pb-1" : "pl-6 text-sm"
+                     )}
+                   >
+                     <div className="flex items-center gap-2 w-full pointer-events-none">
+                       <Checkbox
+                         checked={selected.includes(option)}
+                         className="border-slate-300 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                       />
+                       <span>{labelPrefix}{option}</span>
+                     </div>
+                   </CommandItem>
+                 );
+               })}
+             </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>
@@ -99,6 +141,255 @@ const seededRandom = (seed: number) => {
   return x - Math.floor(x);
 };
 
+// Allele frequency database by ethnicity and locus
+// Based on Kuwait National Registry data patterns
+const alleleFrequencies: Record<string, Record<string, Record<string, number>>> = {
+  'Kuwaiti': {
+    'A': {
+      '01:01': 0.082, '01:02': 0.045, '01:03': 0.028, '02:01': 0.156, '02:02': 0.067,
+      '02:03': 0.034, '03:03': 0.089, '11:11': 0.043, '11:23': 0.021, '24:02': 0.078,
+      '26:01': 0.032, '29:02': 0.041, '30:01': 0.056, '31:01': 0.038, '32:01': 0.029,
+      '33:01': 0.024, '68:01': 0.037, '68:02': 0.019
+    },
+    'B': {
+      '07:02': 0.089, '08:01': 0.045, '13:02': 0.034, '14:02': 0.028, '15:01': 0.056,
+      '18:01': 0.067, '27:05': 0.023, '35:01': 0.078, '38:01': 0.032, '39:01': 0.021,
+      '40:01': 0.045, '44:02': 0.056, '49:01': 0.034, '50:01': 0.067, '51:01': 0.089,
+      '52:01': 0.043, '55:01': 0.028, '57:01': 0.032, '58:01': 0.024
+    },
+    'C': {
+      '01:02': 0.056, '02:02': 0.078, '03:03': 0.089, '03:04': 0.067, '04:01': 0.112,
+      '05:01': 0.045, '06:02': 0.089, '07:01': 0.134, '07:02': 0.078, '08:02': 0.034,
+      '12:03': 0.056, '14:02': 0.032, '15:02': 0.045, '16:01': 0.043, '17:01': 0.028
+    },
+    'DRB1': {
+      '01:01': 0.034, '03:01': 0.089, '04:01': 0.067, '04:04': 0.045, '07:01': 0.112,
+      '08:01': 0.023, '09:01': 0.019, '10:01': 0.028, '11:01': 0.089, '11:04': 0.056,
+      '12:01': 0.034, '13:01': 0.078, '13:02': 0.045, '14:01': 0.032, '15:01': 0.089,
+      '15:02': 0.043, '16:01': 0.028
+    },
+    'DQA1': {
+      '01:01': 0.123, '01:02': 0.089, '01:03': 0.067, '02:01': 0.112, '03:01': 0.078,
+      '04:01': 0.056, '05:01': 0.134, '05:05': 0.089, '06:01': 0.045
+    },
+    'DQB1': {
+      '02:01': 0.112, '02:02': 0.089, '03:01': 0.134, '03:02': 0.078, '03:03': 0.056,
+      '04:02': 0.045, '05:01': 0.123, '05:02': 0.067, '05:03': 0.089, '06:01': 0.043,
+      '06:02': 0.078, '06:03': 0.034
+    },
+    'DPA1': {
+      '01:03': 0.456, '02:01': 0.234, '02:02': 0.156, '03:01': 0.089, '04:01': 0.065
+    },
+    'DPB1': {
+      '01:01': 0.045, '02:01': 0.189, '03:01': 0.078, '04:01': 0.234, '04:02': 0.156,
+      '05:01': 0.089, '06:01': 0.056, '09:01': 0.034, '10:01': 0.028, '11:01': 0.023,
+      '13:01': 0.019, '14:01': 0.024, '17:01': 0.015
+    }
+  },
+  'Other Arab': {
+    'A': {
+      '01:01': 0.078, '01:02': 0.052, '02:01': 0.145, '02:02': 0.071, '03:03': 0.095,
+      '11:11': 0.038, '24:02': 0.082, '26:01': 0.028, '29:02': 0.045, '30:01': 0.062,
+      '31:01': 0.041, '32:01': 0.032, '33:01': 0.027, '68:01': 0.042
+    },
+    'B': {
+      '07:02': 0.095, '08:01': 0.052, '13:02': 0.038, '15:01': 0.061, '18:01': 0.072,
+      '35:01': 0.082, '38:01': 0.028, '40:01': 0.048, '44:02': 0.061, '50:01': 0.072,
+      '51:01': 0.095, '52:01': 0.048, '57:01': 0.035, '58:01': 0.028
+    },
+    'C': {
+      '01:02': 0.062, '02:02': 0.082, '03:03': 0.095, '04:01': 0.118, '05:01': 0.048,
+      '06:02': 0.095, '07:01': 0.128, '07:02': 0.082, '08:02': 0.038, '12:03': 0.062
+    },
+    'DRB1': {
+      '01:01': 0.038, '03:01': 0.095, '04:01': 0.072, '07:01': 0.118, '11:01': 0.095,
+      '13:01': 0.082, '15:01': 0.095, '16:01': 0.032
+    },
+    'DQA1': {
+      '01:01': 0.128, '01:02': 0.095, '02:01': 0.118, '03:01': 0.082, '05:01': 0.142
+    },
+    'DQB1': {
+      '02:01': 0.118, '03:01': 0.142, '03:02': 0.082, '05:01': 0.128, '05:02': 0.072,
+      '06:02': 0.082
+    },
+    'DPA1': {
+      '01:03': 0.478, '02:01': 0.245, '02:02': 0.145, '03:01': 0.078, '04:01': 0.054
+    },
+    'DPB1': {
+      '02:01': 0.198, '04:01': 0.245, '04:02': 0.162, '05:01': 0.095
+    }
+  },
+  'South Asian': {
+    'A': {
+      '01:01': 0.065, '02:01': 0.132, '03:01': 0.078, '11:01': 0.112, '24:02': 0.095,
+      '26:01': 0.045, '33:01': 0.068, '33:03': 0.042, '68:01': 0.052
+    },
+    'B': {
+      '07:02': 0.078, '08:01': 0.042, '15:01': 0.085, '35:01': 0.095, '40:01': 0.068,
+      '44:03': 0.052, '51:01': 0.078, '52:01': 0.112, '57:01': 0.045, '58:01': 0.035
+    },
+    'C': {
+      '01:02': 0.052, '03:03': 0.078, '04:01': 0.135, '06:02': 0.112, '07:01': 0.145,
+      '07:02': 0.095, '12:02': 0.068, '15:02': 0.058
+    },
+    'DRB1': {
+      '03:01': 0.078, '04:01': 0.085, '07:01': 0.132, '10:01': 0.042, '11:01': 0.112,
+      '13:01': 0.078, '14:01': 0.052, '15:01': 0.112, '16:01': 0.045
+    },
+    'DQA1': {
+      '01:01': 0.112, '01:02': 0.085, '02:01': 0.132, '03:01': 0.078, '05:01': 0.158
+    },
+    'DQB1': {
+      '02:01': 0.132, '03:01': 0.145, '05:01': 0.135, '05:03': 0.085, '06:01': 0.068
+    },
+    'DPA1': {
+      '01:03': 0.512, '02:01': 0.212, '02:02': 0.132, '03:01': 0.085, '04:01': 0.059
+    },
+    'DPB1': {
+      '02:01': 0.178, '04:01': 0.268, '04:02': 0.145, '05:01': 0.112
+    }
+  },
+  'Southeast Asian': {
+    'A': {
+      '02:01': 0.145, '02:07': 0.068, '11:01': 0.125, '24:02': 0.112, '33:03': 0.078,
+      '34:01': 0.045
+    },
+    'B': {
+      '13:01': 0.068, '15:02': 0.095, '38:02': 0.052, '40:01': 0.112, '46:01': 0.085,
+      '51:01': 0.068, '58:01': 0.078
+    },
+    'C': {
+      '01:02': 0.085, '03:04': 0.095, '04:01': 0.145, '07:02': 0.125, '08:01': 0.078
+    },
+    'DRB1': {
+      '03:01': 0.068, '04:05': 0.078, '07:01': 0.145, '09:01': 0.112, '12:02': 0.085,
+      '15:02': 0.095
+    },
+    'DQA1': {
+      '01:02': 0.112, '02:01': 0.145, '03:02': 0.095, '05:01': 0.168
+    },
+    'DQB1': {
+      '02:01': 0.145, '03:01': 0.168, '03:03': 0.085, '05:02': 0.112
+    },
+    'DPA1': {
+      '01:03': 0.545, '02:01': 0.198, '02:02': 0.145
+    },
+    'DPB1': {
+      '02:01': 0.168, '04:01': 0.285, '05:01': 0.145
+    }
+  },
+  'Other': {
+    'A': {
+      '01:01': 0.085, '02:01': 0.152, '03:01': 0.095, '11:01': 0.078, '24:02': 0.068,
+      '26:01': 0.042
+    },
+    'B': {
+      '07:02': 0.112, '08:01': 0.078, '15:01': 0.085, '35:01': 0.068, '44:02': 0.078,
+      '51:01': 0.095
+    },
+    'C': {
+      '03:03': 0.095, '04:01': 0.125, '06:02': 0.085, '07:01': 0.145, '07:02': 0.112
+    },
+    'DRB1': {
+      '03:01': 0.095, '04:01': 0.085, '07:01': 0.125, '11:01': 0.085, '13:01': 0.078,
+      '15:01': 0.095
+    },
+    'DQA1': {
+      '01:01': 0.125, '02:01': 0.135, '05:01': 0.152
+    },
+    'DQB1': {
+      '02:01': 0.135, '03:01': 0.152, '05:01': 0.142
+    },
+    'DPA1': {
+      '01:03': 0.485, '02:01': 0.225, '02:02': 0.158
+    },
+    'DPB1': {
+      '02:01': 0.185, '04:01': 0.255, '04:02': 0.158
+    }
+  }
+};
+
+// Hardy-Weinberg CPRA Calculation Function
+// Formula: CPRA = Σ_e w_e × (1 - Π_L (1 - Σ p_{e,L,u})²)
+const calculateHardyWeinbergCPRA = (
+  unacceptableAntigens: Record<string, string[]>,
+  ethnicWeights: Record<string, number>
+): {
+  cpra: number;
+  perEthnicityResults: Record<string, { cpra: number; weight: number; locusProbabilities: Record<string, { pUnacc: number; pNo: number }> }>;
+  locusProbabilities: Record<string, number>;
+} => {
+  // Normalize ethnic weights
+  const totalWeight = Object.values(ethnicWeights).reduce((sum, w) => sum + w, 0);
+  const normalizedWeights: Record<string, number> = {};
+  for (const [eth, w] of Object.entries(ethnicWeights)) {
+    normalizedWeights[eth] = w / totalWeight;
+  }
+
+  const perEthnicityResults: Record<string, { cpra: number; weight: number; locusProbabilities: Record<string, { pUnacc: number; pNo: number }> }> = {};
+  const aggregatedLocusProbabilities: Record<string, number[]> = {};
+  let weightedCPRA = 0;
+
+  // Calculate CPRA for each ethnicity
+  for (const [ethnicity, weight] of Object.entries(normalizedWeights)) {
+    const freqData = alleleFrequencies[ethnicity] || alleleFrequencies['Other'];
+    let pNoAny = 1.0; // Probability of no unacceptable antigens at any locus
+    const locusProbabilities: Record<string, { pUnacc: number; pNo: number }> = {};
+
+    // For each locus with unacceptable antigens
+    for (const [locus, antigens] of Object.entries(unacceptableAntigens)) {
+      if (!antigens || antigens.length === 0) continue;
+
+      const locusFreqs = freqData[locus] || {};
+      
+      // Sum frequencies of unacceptable antigens at this locus
+      let pUnacc = 0;
+      for (const antigen of antigens) {
+        // Try exact match first, then try without leading zeros
+        const freq = locusFreqs[antigen] || locusFreqs[antigen.replace(/^0+/, '')] || 0;
+        pUnacc += freq;
+      }
+      
+      // Bound to [0, 1]
+      pUnacc = Math.min(1.0, Math.max(0, pUnacc));
+      
+      // Hardy-Weinberg: P(no unacceptable at this locus) = (1 - p_unacc)²
+      const pNoLocus = Math.pow(1.0 - pUnacc, 2);
+      pNoAny *= pNoLocus;
+
+      locusProbabilities[locus] = { pUnacc, pNo: pNoLocus };
+      
+      if (!aggregatedLocusProbabilities[locus]) {
+        aggregatedLocusProbabilities[locus] = [];
+      }
+      aggregatedLocusProbabilities[locus].push(1 - pNoLocus);
+    }
+
+    // CPRA for this ethnicity = 1 - P(no unacceptable at any locus)
+    const cpraEthnicity = 1.0 - pNoAny;
+    perEthnicityResults[ethnicity] = {
+      cpra: cpraEthnicity * 100,
+      weight,
+      locusProbabilities
+    };
+
+    // Add weighted contribution
+    weightedCPRA += weight * cpraEthnicity;
+  }
+
+  // Calculate average locus probabilities
+  const locusProbabilities: Record<string, number> = {};
+  for (const [locus, probs] of Object.entries(aggregatedLocusProbabilities)) {
+    locusProbabilities[locus] = probs.reduce((a, b) => a + b, 0) / probs.length;
+  }
+
+  return {
+    cpra: weightedCPRA * 100,
+    perEthnicityResults,
+    locusProbabilities
+  };
+};
+
 // Full HLA Loci Data for M2 Calculator
 const hlaLociM2: Record<string, string[]> = {
   "A": [
@@ -121,6 +412,15 @@ const hlaLociM2: Record<string, string[]> = {
     "13:48", "13:49", "13:50", "13:51"
   ],
   "C": [
+    "01:01", "01:03", "01:04", "01:05", "01:06", "01:07", "01:08", "01:12", "01:14", "01:15",
+    "01:16", "01:17", "02:02", "02:03", "02:04", "02:05", "02:06", "02:07", "02:08", "02:12",
+    "02:14", "02:15", "02:16", "02:17", "03:03", "03:04", "03:06", "03:07", "03:08", "03:12",
+    "03:14", "03:15", "03:16", "03:18", "04:01", "04:03", "04:04", "04:05", "04:06", "04:07",
+    "04:08", "04:10", "04:12", "04:14", "04:15", "04:16", "04:17", "04:18", "05:06", "05:07",
+    "05:08", "05:12", "05:15", "05:17", "06:04", "06:06", "06:07", "06:08", "06:12", "06:14",
+    "06:15"
+  ],
+  "DRB1": [
     "01:01", "01:03", "01:04", "01:07", "01:08", "01:10", "01:11", "01:12", "01:13", "01:14",
     "01:15", "01:16", "01:17", "03:03", "03:04", "03:07", "03:08", "03:10", "03:11", "03:12",
     "03:13", "03:14", "03:15", "03:16", "04:04", "04:07", "04:08", "04:09", "04:10", "04:11",
@@ -129,21 +429,6 @@ const hlaLociM2: Record<string, string[]> = {
     "08:10", "08:11", "08:12", "08:13", "08:14", "08:15", "08:16", "08:17", "09:01", "09:09",
     "09:10", "09:11", "09:12", "09:15", "09:16"
   ],
-  "DRB1": [
-    "01:01", "01:03", "01:04", "1:4", "01:07", "1:7", "1:8", "01:08", "01:10", "1:11",
-    "01:11", "1:12", "01:12", "01:13", "1:13", "1:14", "01:14", "1:15", "01:15", "01:16",
-    "1:17", "01:17", "3:03", "03:03", "03:04", "3:4", "03:07", "3:7", "03:08", "03:10",
-    "03:11", "3:11", "03:12", "03:13", "3:13", "03:14", "03:15", "03:16", "04:04", "4:04",
-    "4:4", "4:7", "04:07", "04:08", "04:09", "4:10", "04:10", "04:11", "4:11", "4:12",
-    "04:12", "04:13", "4:13", "04:14", "4:14", "04:15", "4:15", "4:16", "04:16", "04:17",
-    "7:3", "07:03", "07:04", "07:07", "7:7", "07:08", "7:8", "7:10", "07:10", "07:11",
-    "7:11", "07:12", "07:13", "7:13", "7:14", "07:14", "7:15", "07:15", "07:16", "7:17",
-    "07:17", "07:53", "08:08", "08:10", "08:11", "8:12", "08:13", "8:13", "8:14", "08:14",
-    "08:15", "08:16", "08:17", "09:01", "09:09", "09:10", "09:11", "09:12", "09:15", "9:16"
-  ],
-  "DRB3": ["DRB3", "DRB3:DRB3"],
-  "DRB4": ["DRB4", "DRB4:DRB4"],
-  "DRB5": ["DRB5", "DRB5:DRB5"],
   "DQA1": ["01:01", "01:02", "01:03", "01:04", "01:05", "02:01", "03:01", "03:02", "03:03", "04:01", "04:02", "04:04", "05:01", "05:03", "05:05", "06:01", "06:02"],
   "DQB1": ["02:01", "02:02", "03:01", "03:02", "03:03", "03:04", "03:05", "04:01", "04:02", "05:01", "05:02", "05:03", "05:04", "06:01", "06:02", "06:03", "06:04", "06:09"],
   "DPA1": ["01:03", "02:01", "02:02", "03:01", "04:01"],
@@ -340,51 +625,60 @@ export default function Project7Page() {
     setCalculatingM2(true);
 
     try {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Brief delay for UI feedback
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Mock calculation logic
+      // Use the actual Hardy-Weinberg CPRA calculation
+      const calculationResult = calculateHardyWeinbergCPRA(selectedAntigensM2, ethnicWeights);
+      
       const totalAntigens = Object.values(selectedAntigensM2).reduce((sum, arr) => sum + arr.length, 0);
-      // Randomized realistic-looking CPRA score based on antigen count
-      const baseScore = Math.min(99.9, totalAntigens * (5 + Math.random() * 5));
       
-      const mockResult: CPRAM2Result = {
-        cpra_percentage: baseScore,
-        cpra_proportion: baseScore / 100,
+      // Normalize ethnic weights for display
+      const totalWeight = Object.values(ethnicWeights).reduce((sum, w) => sum + w, 0);
+      const normalizedWeights: Record<string, number> = {};
+      for (const [eth, w] of Object.entries(ethnicWeights)) {
+        normalizedWeights[eth] = w / totalWeight;
+      }
+      
+      // Build per-ethnicity results for the result object
+      const perEthnicityResults: Record<string, { cpra: number; weight: number; locus_results: Record<string, { p_unacc: number; p_no: number; unacceptable_count: number }> }> = {};
+      for (const [eth, data] of Object.entries(calculationResult.perEthnicityResults)) {
+        const locusResults: Record<string, { p_unacc: number; p_no: number; unacceptable_count: number }> = {};
+        for (const [locus, probs] of Object.entries(data.locusProbabilities)) {
+          locusResults[locus] = {
+            p_unacc: probs.pUnacc,
+            p_no: probs.pNo,
+            unacceptable_count: selectedAntigensM2[locus]?.length || 0
+          };
+        }
+        perEthnicityResults[eth] = {
+          cpra: data.cpra,
+          weight: data.weight,
+          locus_results: locusResults
+        };
+      }
+      
+      const result: CPRAM2Result = {
+        cpra_percentage: calculationResult.cpra,
+        cpra_proportion: calculationResult.cpra / 100,
         inputs: {
           unacceptable_antigens: selectedAntigensM2,
           ethnic_weights_original: ethnicWeights,
-          ethnic_weights_normalized: ethnicWeights,
-          total_loci_processed: Object.keys(selectedAntigensM2).length,
+          ethnic_weights_normalized: normalizedWeights,
+          total_loci_processed: Object.keys(selectedAntigensM2).filter(k => selectedAntigensM2[k]?.length > 0).length,
           total_unacceptable_loci: totalAntigens
         },
-        locus_probabilities: {
-          'A': Math.random() * 0.5,
-          'B': Math.random() * 0.5,
-          'DRB1': Math.random() * 0.5
-        },
-        per_ethnicity_results: {
-          'Kuwaiti': { 
-            cpra: Math.min(99.9, baseScore * (0.9 + Math.random() * 0.2)), 
-            weight: 0.40,
-            locus_results: {} 
-          },
-          'Other Arab': { 
-            cpra: Math.min(99.9, baseScore * (0.9 + Math.random() * 0.2)), 
-            weight: 0.30,
-            locus_results: {} 
-          },
-          'South Asian': { 
-            cpra: Math.min(99.9, baseScore * (0.9 + Math.random() * 0.2)), 
-            weight: 0.20,
-            locus_results: {} 
-          }
-        },
+        locus_probabilities: calculationResult.locusProbabilities,
+        per_ethnicity_results: perEthnicityResults,
         frequencies_sample: {},
         methodology: {
           algorithm: "M2 (Hardy-Weinberg)",
-          formula: "CPRA = Σ w_e (1 - Π_L (1 - Σ p_e,u)²)",
-          assumptions: ["Hardy-Weinberg Equilibrium", "Linkage Disequilibrium ignored"]
+          formula: "CPRA = Σ w_e × (1 - Π_L (1 - Σ p_{e,L,u})²)",
+          assumptions: [
+            "Hardy-Weinberg Equilibrium assumed",
+            "Loci are independent (linkage disequilibrium ignored)",
+            "Allele frequencies from Kuwait National Registry"
+          ]
         },
         data_quality: {
           coverage: "High (N=1247)",
@@ -394,7 +688,7 @@ export default function Project7Page() {
         }
       };
 
-      setCpraM2Result(mockResult);
+      setCpraM2Result(result);
     } catch (error) {
       toast({
         title: "Calculation Error",
@@ -836,7 +1130,6 @@ export default function Project7Page() {
                               }))
                             }}
                             placeholder={`Select ${locus} antigens...`}
-                            labelPrefix={locus === 'C' ? 'Cw' : ''}
                           />
                           
                           {/* Selected tags area */}
@@ -844,7 +1137,7 @@ export default function Project7Page() {
                             {selectedAntigensM2[locus]?.length > 0 ? (
                               selectedAntigensM2[locus]?.map(antigen => (
                                 <Badge key={antigen} variant="secondary" className="pl-2.5 pr-1 py-1 flex items-center gap-1 bg-white border shadow-sm hover:bg-slate-50">
-                                  <span className="font-medium text-purple-700">{locus === 'C' ? `Cw${antigen}` : antigen}</span>
+                                  <span className="font-medium text-purple-700">{antigen}</span>
                                   <button
                                     className="ml-1 p-0.5 hover:bg-red-100 hover:text-red-600 rounded-full transition-colors"
                                     onClick={() => toggleAntigenM2(locus, antigen)}
@@ -892,7 +1185,7 @@ export default function Project7Page() {
                                   className="cursor-pointer" 
                                   onClick={() => toggleAntigenM2(locus, antigen)}
                                 >
-                                  {locus === 'C' ? `Cw${antigen}` : antigen} ×
+                                  {antigen} ×
                                 </Badge>
                               ))}
                             </div>
